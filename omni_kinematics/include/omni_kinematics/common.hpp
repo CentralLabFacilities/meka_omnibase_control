@@ -1,9 +1,11 @@
 #ifndef OMNI_KINEMATICS_COMMON_HPP
 #define OMNI_KINEMATICS_COMMON_HPP
 
+#include <cmath>
+
 namespace omni_kinematics
 {
-    static const double PI = 3.14159;
+    static const double PI = M_PI;
 
     struct Twist
     {
@@ -33,6 +35,28 @@ namespace omni_kinematics
     void saturateTwist(const Twist& cur_twist, Twist& cmd_twist, double dt,
         const double& xdd_max, const double& ydd_max, const double& tdd_max);
 
+    /// \brief Normalize from -PI to PI.
+    static inline double normalizedAngle(const double& a)
+    {
+        // NOTE: We assume that angles are generally close to the normalized
+        // range, so we'll rarely go each test more than once.
+        double r = a;
+        while (r < -M_PI) {
+            r += M_PI;
+        }
+        while (r > M_PI) {
+            r -= M_PI;
+        }
+
+        return r;
+    }
+
+    /// \brief Return the shortest distance from a to b.
+    static inline double shortestAngularDistance(const double& a, 
+                                                 const double& b)
+    {
+        return normalizedAngle(b-a);
+    }
 }
 
 

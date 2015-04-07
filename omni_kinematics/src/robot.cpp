@@ -82,10 +82,8 @@ bool Robot::isParallel(double* angle, const double eps) const
         angle = &tmp;
 
     VectorType abs_angle(nb_wheels_);
-    /* TODO: Normalize with internal method:
     for (size_t i = 0; i < nb_wheels_; ++i)
-        abs_angle[i] = angles::normalize_angle(alpha_[i] + beta_[i]);
-    */
+        abs_angle[i] = normalizedAngle(alpha_[i] + beta_[i]);
 
     double sum_angle = std::accumulate(abs_angle.begin(), abs_angle.end(), 0.0);
     *angle = sum_angle / double(nb_wheels_);
@@ -93,12 +91,11 @@ bool Robot::isParallel(double* angle, const double eps) const
     double std_dev = 0.0;
     for (size_t i = 0; i < nb_wheels_; ++i)
     {
-        // TODO: Replace with own method:
-        double diff = 0.0; //angles::shortest_angular_distance(abs_angle[i], *angle);
+        double diff = shortestAngularDistance(abs_angle[i], *angle);
         std_dev += diff * diff;
     }
     std_dev /= double(nb_wheels_);
-    // ROS_DEBUG_THROTTLE(1.0, "Parallelism test stddev: %f", std_dev);
+
     return (std_dev <= eps);
 }
 
