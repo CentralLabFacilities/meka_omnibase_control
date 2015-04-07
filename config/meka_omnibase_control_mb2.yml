@@ -1,0 +1,24 @@
+name: meka_omnibase_control_mb2
+version: iss
+joint_array_component: m3joint_array_mb2
+pwr_component: m3pwr_pwr029
+
+param:
+    xd_max: 0.25
+    xdd_max: 0.25
+    td_max: 0.50
+    tdd_max: 0.50
+
+    # -pi/4, pi/4, 3pi/4, -3pi/4:
+    alpha: [-0.7854, 0.7854, 2.3562, -2.3562] 
+    l: [0.2678, 0.2678, 0.2678, 0.2678]
+    d: [0.0200, 0.0200, 0.0200, 0.0200]
+    r: [0.0550, 0.0550, 0.0550, 0.0550]
+    beta_offset: [0.0, 0.0, 0.0, 0.0] # TODO: Real values!
+
+    # TODO: Real values!
+    betad_max: [1.0, 1.0, 1.0, 1.0]
+    betadd_max: [1.0, 1.0, 1.0, 1.0]
+    phid_max: [1.0, 1.0, 1.0, 1.0]
+    phidd_max: [1.0, 1.0, 1.0, 1.0]
+
