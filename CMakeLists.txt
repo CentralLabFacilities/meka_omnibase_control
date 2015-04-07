@@ -44,6 +44,7 @@ if (RTAI)
 include_directories(
     ${CMAKE_CURRENT_BINARY_DIR}           # For Protobuf-generated files.
     ${PROJECT_SOURCE_DIR}/include
+    ${PROJECT_SOURCE_DIR}/omni_kinematics/include
     ${M3RT_INCLUDE_DIR}
     ${RTAI_INCLUDE_DIR}
     ${THREADS_INCLUDE_DIR}

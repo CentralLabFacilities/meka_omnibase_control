@@ -3,6 +3,7 @@
 
 #include <m3rt/base/component_factory.h>
 #include <m3rt/base/component.h>
+#include <omni_kinematics/robot.hpp>
 #include "meka_omnibase_control.pb.h"
 
 namespace meka_omnibase_control
@@ -10,12 +11,11 @@ namespace meka_omnibase_control
     class MekaOmnibaseControl: public m3rt::M3Component
     {
     private:
-        MekaOmnibaseControlCommand command_;
-        MekaOmnibaseControlStatus  status_;
-        MekaOmnibaseControlParam   param_;
+        MekaOmnibaseControlCommand              command_;
+        MekaOmnibaseControlStatus               status_;
+        MekaOmnibaseControlParam                param_;
 
-        double beta_[4];
-        double phid_[4];
+        std::unique_ptr<omni_kinematics::Robot> robot_;
 
     public:
         MekaOmnibaseControl(): m3rt::M3Component(ROBOT_PRIORITY)
