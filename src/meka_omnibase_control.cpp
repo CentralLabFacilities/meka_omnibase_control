@@ -62,6 +62,12 @@ void MekaOmnibaseControl::Startup()
        status_.add_l_vel(0.0);
    }
   
+   for (int i = 0; i < NUM_CASTERS; ++i) {
+       status_.add_beta(0.0);
+       status_.add_beta_d(0.0);
+       status_.add_phi_d(0.0);
+   }
+
    // NOTE: Cartesian limits currently ignored.
    param_.set_xd_max(0.0);
    param_.set_xdd_max(0.0);
@@ -90,6 +96,9 @@ void MekaOmnibaseControl::StepStatus()
         beta[i]  = m3joints_->GetJoint(i*2)->GetThetaRad();
         betad[i] = m3joints_->GetJoint(i*2)->GetThetaDotRad();
         phid[i]  = m3joints_->GetJoint(i*2 + 1)->GetThetaDotRad();
+        status_.set_beta(i, beta[i]);
+        status_.set_beta_d(i, betad[i]);
+        status_.set_phi_d(i, phid[i]);
     }
     robot_.updateState(beta,betad,phid);
 
