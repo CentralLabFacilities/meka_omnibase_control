@@ -1,0 +1,36 @@
+option optimize_for = SPEED;
+import "component_base.proto";
+
+enum MEKA_OMNIBASE_CONTROL_MODE {
+    MEKA_OMNIBASE_CONTROL_OFF = 0; // Everything off.
+    MEKA_OMNIBASE_CONTROL_ON  = 1; // Robot-space velocity control.
+}
+
+message MekaOmnibaseControlStatus
+{
+    optional M3BaseStatus base  = 1;
+    repeated double       g_pos = 2;
+    repeated double       l_vel = 3;
+}
+
+message MekaOmnibaseControlParam
+{
+    optional double                     xd_max      = 2;    // Both xd and yd
+    optional double                     xdd_max     = 3;    // Both xdd and ydd
+    optional double                     td_max      = 4;
+    optional double                     tdd_max     = 5;
+
+    repeated double                     alpha       = 6;
+    repeated double                     l           = 7;
+    repeated double                     d           = 8;
+    repeated double                     r           = 9;
+    repeated double                     beta_offset = 10;   // To actuator angle.
+}
+
+message MekaOmnibaseControlCommand
+{
+    optional MEKA_OMNIBASE_CONTROL_MODE ctrl_mode   = 1;
+
+    repeated double                     xd_des      = 2;    // (xd,yd,td)
+}
+

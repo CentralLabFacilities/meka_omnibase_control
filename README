@@ -1,0 +1,6 @@
+meka_omnibase_control
+---------------------
+
+Velocity-based controller for the Meka mobile base.
+Depends on the M3 framework.
+
