@@ -56,6 +56,19 @@ bool MekaOmnibaseControl::LinkDependentComponents()
 
 void MekaOmnibaseControl::Startup()
 {
+   for (int i = 0; i < 3; ++i) {
+       command_.add_xd_des(0.0);
+       status_.add_g_pos(0.0);
+       status_.add_l_vel(0.0);
+   }
+  
+   // NOTE: Cartesian limits currently ignored.
+   param_.set_xd_max(0.0);
+   param_.set_xdd_max(0.0);
+   param_.set_td_max(0.0);
+   param_.set_tdd_max(0.0);
+
+   command_.set_ctrl_mode(MEKA_OMNIBASE_CONTROL_OFF);
 }
 
 void MekaOmnibaseControl::Shutdown()
@@ -64,6 +77,30 @@ void MekaOmnibaseControl::Shutdown()
 
 void MekaOmnibaseControl::StepStatus()
 {
+    if (IsStateError()) {
+        return;
+    }
+
+    // Update state in robot model.
+    using VectorType = omni_kinematics::Robot::VectorType;
+    VectorType beta(4);
+    VectorType betad(4);
+    VectorType phid(4);
+    for (int i = 0; i < NUM_CASTERS; ++i) {
+        beta[i]  = m3joints_->GetJoint(i*2)->GetThetaRad();
+        betad[i] = m3joints_->GetJoint(i*2)->GetThetaDotRad();
+        phid[i]  = m3joints_->GetJoint(i*2 + 1)->GetThetaDotRad();
+    }
+    robot_.updateState(beta,betad,phid);
+
+    // Update the external status (missing: odometry).
+    status_.set_l_vel(0, robot_.xd());
+    status_.set_l_vel(1, robot_.yd());
+    status_.set_l_vel(2, robot_.td());
+    
+    // Step control (if enabled). 
+    // TODO!
+
 }
 
 void MekaOmnibaseControl::StepCommand()

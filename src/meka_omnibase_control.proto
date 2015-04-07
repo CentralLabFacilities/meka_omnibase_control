@@ -9,16 +9,17 @@ enum MEKA_OMNIBASE_CONTROL_MODE {
 message MekaOmnibaseControlStatus
 {
     optional M3BaseStatus base  = 1;
-    repeated double       g_pos = 2;
-    repeated double       l_vel = 3;
+    repeated double       g_pos = 2; // (x, y, theta) in global frame.
+    repeated double       l_vel = 3; // (xd, yd, theta_d) in local frame.
 }
 
 message MekaOmnibaseControlParam
 {
-    optional double                     xd_max      = 2;    // Both xd and yd
-    optional double                     xdd_max     = 3;    // Both xdd and ydd
-    optional double                     td_max      = 4;
-    optional double                     tdd_max     = 5;
+    // NOTE: Cartesian limits currently ignored, set from beta/phi constraints.
+    optional double                     xd_max      = 1;    // Both xd and yd
+    optional double                     xdd_max     = 2;    // Both xdd and ydd
+    optional double                     td_max      = 3;
+    optional double                     tdd_max     = 4;
 }
 
 message MekaOmnibaseControlCommand
