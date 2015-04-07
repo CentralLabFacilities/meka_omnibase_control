@@ -86,6 +86,8 @@ ${ProtoFiles}
 ## Building
 set(CMAKE_CXX_FLAGS "-std=c++0x")
 
+add_subdirectory(omni_kinematics)
+
 add_library(${LIBNAME} SHARED ${ALL_SRCS})
 target_link_libraries(${LIBNAME} ${LIBS})
 #set_target_properties(${LIBNAME} PROPERTIES COMPILE_FLAGS "-I${CMAKE_BINARY_DIR}/src")

@@ -14,6 +14,8 @@ namespace meka_omnibase_control
         MekaOmnibaseControlStatus  status_;
         MekaOmnibaseControlParam   param_;
 
+        double beta_[4];
+        double phid_[4];
 
     public:
         MekaOmnibaseControl(): m3rt::M3Component(ROBOT_PRIORITY)
