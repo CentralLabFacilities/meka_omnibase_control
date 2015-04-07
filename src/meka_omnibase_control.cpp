@@ -13,23 +13,27 @@ bool MekaOmnibaseControl::ReadConfig(const char* filename)
     param_.set_td_max( doc["param"]["td_max"].as<double>());
     param_.set_tdd_max(doc["param"]["tdd_max"].as<double>());
 
-    // Find the lowest common value between all vector sizes to set the number
-    // of casters:
+    // Make sure there is at least 4 casters defined by looking at the lowest
+    // count of all parameters:
     size_t n_casters = doc["param"]["alpha"].size();
     n_casters = std::min(n_casters, doc["param"]["l"].size());
     n_casters = std::min(n_casters, doc["param"]["d"].size());
     n_casters = std::min(n_casters, doc["param"]["r"].size());
     n_casters = std::min(n_casters, doc["param"]["beta_offset"].size());
-    if (n_casters < 3) {
-        std::cerr << "MekaOmnibaseControl: Config defines less than 3 casters."
+    if (n_casters != NUM_CASTERS) {
+        std::cerr << "MekaOmnibaseControl: Config does not define 4 casters."
                   << std::endl;
         return false;
     }
-    for (int i = 0; i < n_casters; ++i) {
-        param_.add_alpha(doc["param"]["alpha"][i].as<double>());
-        param_.add_l(doc["param"]["l"][i].as<double>());
-        param_.add_d(doc["param"]["d"][i].as<double>());
-        param_.add_r(doc["param"]["r"][i].as<double>());
-        param_.add_beta_offset(doc["param"]["beta_offset"][i].as<double>());
-    }
+
+    using VectorType = omni_kinematics::Robot::VectorType;
+    robot_.alpha() = doc["param"]["alpha"].as<VectorType>();
+    robot_.l() = doc["param"]["l"].as<VectorType>();
+    robot_.d() = doc["param"]["d"].as<VectorType>();
+    robot_.r() = doc["param"]["r"].as<VectorType>();
+
+    robot_.maxBetad() = doc["param"]["betad_max"].as<VectorType>();
+    robot_.maxBetadd() = doc["param"]["betadd_max"].as<VectorType>();
+    robot_.maxPhid() = doc["param"]["phid_max"].as<VectorType>();
+    robot_.maxPhidd() = doc["param"]["phidd_max"].as<VectorType>();
 }

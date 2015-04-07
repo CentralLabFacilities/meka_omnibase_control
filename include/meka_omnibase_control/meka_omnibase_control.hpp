@@ -8,6 +8,8 @@
 
 namespace meka_omnibase_control
 {
+    static const int NUM_CASTERS = 4; 
+
     class MekaOmnibaseControl: public m3rt::M3Component
     {
     private:
@@ -15,10 +17,12 @@ namespace meka_omnibase_control
         MekaOmnibaseControlStatus               status_;
         MekaOmnibaseControlParam                param_;
 
-        std::unique_ptr<omni_kinematics::Robot> robot_;
+        omni_kinematics::Robot                  robot_;
 
     public:
-        MekaOmnibaseControl(): m3rt::M3Component(ROBOT_PRIORITY)
+        MekaOmnibaseControl():
+            m3rt::M3Component(ROBOT_PRIORITY),
+            robot_(NUM_CASTERS)
         {
             RegisterVersion("default", DEFAULT);
             RegisterVersion("iss",     ISS);
