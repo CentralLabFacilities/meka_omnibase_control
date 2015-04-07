@@ -3,6 +3,8 @@
 
 #include <m3rt/base/component_factory.h>
 #include <m3rt/base/component.h>
+#include <m3/chains/joint_array.h>
+#include <m3/hardware/pwr.h>
 #include <omni_kinematics/robot.hpp>
 #include "meka_omnibase_control.pb.h"
 
@@ -18,6 +20,12 @@ namespace meka_omnibase_control
         MekaOmnibaseControlParam                param_;
 
         omni_kinematics::Robot                  robot_;
+
+        std::string                             m3joints_name_;
+        std::string                             m3pwr_name_;
+
+        m3::M3JointArray*                       m3joints_;
+        m3::M3Pwr*                              m3pwr_;
 
     public:
         MekaOmnibaseControl():

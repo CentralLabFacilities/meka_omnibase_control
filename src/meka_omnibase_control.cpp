@@ -8,6 +8,9 @@ bool MekaOmnibaseControl::ReadConfig(const char* filename)
         return false;
     }
 
+    m3joints_name_ = doc["joint_array_component"].as<std::string>();
+    m3pwr_name_    = doc["pwr_component"].as<std::string>();
+
     param_.set_xd_max( doc["param"]["xd_max"].as<double>());
     param_.set_xdd_max(doc["param"]["xdd_max"].as<double>());
     param_.set_td_max( doc["param"]["td_max"].as<double>());
@@ -44,6 +47,11 @@ bool MekaOmnibaseControl::ReadConfig(const char* filename)
 
 bool MekaOmnibaseControl::LinkDependentComponents()
 {
+    m3joints_ = dynamic_cast<m3::M3JointArray *>(
+        factory->GetComponent(m3joints_name_));
+    m3pwr_    = (m3::M3Pwr *) factory->GetComponent(m3pwr_name_);
+
+    return (m3joints_ != NULL && m3pwr_ != NULL);
 }
 
 void MekaOmnibaseControl::Startup()
