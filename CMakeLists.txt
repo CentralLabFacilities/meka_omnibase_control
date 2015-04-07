@@ -37,7 +37,7 @@ set_property(
    PROPERTY COMPILE_DEFINITIONS YAMLCPP_03
    )
 endif(${YAMLCPP_VERSION} VERSION_LESS "0.5")
-set(LIBS ${LIBS} ${YAMLCPP_LIBRARY})
+set(LIBS ${LIBS} ${YAMLCPP_LIBRARY} omni_kinematics)
 
 if (RTAI)
 
@@ -70,6 +70,7 @@ set(LIBS ${LIBS} ${RTAI_LIBRARIES}  pthread ${Boost_LIBRARIES} ${EIGEN3_LIBRARIE
 
 set( ALL_SRCS 
     src/meka_omnibase_control.cpp
+    src/factory_proxy.cpp
 )
 set( ALL_HDRS
     include/meka_omnibase_control.hpp

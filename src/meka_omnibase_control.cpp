@@ -36,4 +36,28 @@ bool MekaOmnibaseControl::ReadConfig(const char* filename)
     robot_.maxBetadd() = doc["param"]["betadd_max"].as<VectorType>();
     robot_.maxPhid() = doc["param"]["phid_max"].as<VectorType>();
     robot_.maxPhidd() = doc["param"]["phidd_max"].as<VectorType>();
+
+    robot_.calcConstraints();
+
+    return true;
+}
+
+bool MekaOmnibaseControl::LinkDependentComponents()
+{
+}
+
+void MekaOmnibaseControl::Startup()
+{
+}
+
+void MekaOmnibaseControl::Shutdown()
+{
+}
+
+void MekaOmnibaseControl::StepStatus()
+{
+}
+
+void MekaOmnibaseControl::StepCommand()
+{
 }

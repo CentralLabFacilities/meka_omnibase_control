@@ -32,6 +32,11 @@ namespace meka_omnibase_control
         google::protobuf::Message* GetStatus()  { return &status_; }
         google::protobuf::Message* GetParam()   { return &param_; }
 
+        M3BaseStatus* GetBaseStatus()
+        {
+            return status_.mutable_base();
+        }
+
     private:
         enum {DEFAULT, ISS};
 
