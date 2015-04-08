@@ -23,7 +23,9 @@ class MekaOmnibaseControl(M3Component):
                 self.status.l_vel[2])
 
     def get_global_position(self):
-        return (0,0,0)
+        return (self.status.g_pos[0],
+                self.status.g_pos[1],
+                self.status.g_pos[2])
 
     def set_mode_on(self):
         self.command.ctrl_mode = mob.MEKA_OMNIBASE_CONTROL_ON

@@ -61,7 +61,7 @@ Robot::Robot(const Robot& r):
 }
 
 void Robot::updateState(const VectorType& beta, const VectorType& betad, 
-    const VectorType& phid)
+    const VectorType& phid, const double dt)
 {
     assert(beta.size() == nb_wheels_);
     assert(betad.size() == nb_wheels_);
@@ -72,6 +72,15 @@ void Robot::updateState(const VectorType& beta, const VectorType& betad,
     phid_ = phid;
 
     calcVelocity();
+
+    // Accumulate the twist to obtain the pose in the global frame.
+    const double& xd = twist_.xd;
+    const double& yd = twist_.yd;
+    const double& td = twist_.td;
+    const double& t =  pose_.t;
+    pose_.x += dt * (xd * cos(t) - yd * sin(t));
+    pose_.y += dt * (yd * cos(t) + xd * sin(t));
+    pose_.t += dt * td;
 
 }
 

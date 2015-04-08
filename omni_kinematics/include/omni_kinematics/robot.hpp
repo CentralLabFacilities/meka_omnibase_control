@@ -151,7 +151,14 @@ namespace omni_kinematics
         double yd() const { return twist_.yd; }
         double td() const { return twist_.td; }
 
+        /// \brief Return the current measured twist.
         const Twist& twist() const { return twist_; }
+
+        /// \brief Return the accumulated global pose.
+        ///
+        /// Calculated by integrating the current twist on each updateState
+        /// cycle.
+        const Pose&  pose()  const { return pose_; }
 
         /// \brief Calculate the constraints based on max_betad_, max_phid_
         /// and the robot's geometry.
@@ -161,10 +168,17 @@ namespace omni_kinematics
         void calcConstraints();
 
         /// \brief Update the internal state and recalculate velocity.
+        ///
+        /// Parameter dt is the time delta (in second) since last update (used
+        /// to accumulate the pose in the global frame).
         void updateState(
             const VectorType& beta, 
             const VectorType& betad, 
-            const VectorType& phid);
+            const VectorType& phid,
+            const double      dt);
+
+        /// \brief Reset the pose in the global frame to (0,0,0).
+        void resetPose() { pose_ = Pose(); }
 
         /// \brief Indicates if the robot's wheels are considered parallel or 
         /// not.
@@ -203,6 +217,9 @@ namespace omni_kinematics
 
         // Velocity
         Twist twist_;
+
+        // Pose in the global frame
+        Pose pose_;
 
     };
 }

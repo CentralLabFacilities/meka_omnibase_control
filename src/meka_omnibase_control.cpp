@@ -75,6 +75,9 @@ void MekaOmnibaseControl::Startup()
    param_.set_tdd_max(0.0);
 
    command_.set_ctrl_mode(MEKA_OMNIBASE_CONTROL_OFF);
+
+   // Reset global odometry.
+   robot_.resetPose();
 }
 
 void MekaOmnibaseControl::Shutdown()
@@ -100,15 +103,19 @@ void MekaOmnibaseControl::StepStatus()
         status_.set_beta_d(i, betad[i]);
         status_.set_phi_d(i, phid[i]);
     }
-    robot_.updateState(beta,betad,phid);
+    robot_.updateState(beta, betad, phid, 1.0 / RT_TASK_FREQUENCY);
 
-    // Update the external status (missing: odometry).
+    // Update the external status.
     status_.set_l_vel(0, robot_.xd());
     status_.set_l_vel(1, robot_.yd());
     status_.set_l_vel(2, robot_.td());
+    status_.set_g_pos(0, robot_.pose().x);
+    status_.set_g_pos(1, robot_.pose().y);
+    status_.set_g_pos(2, robot_.pose().t);
     
     // Step control (if enabled). 
     // TODO!
+    // m3joints_.->GetJoint(i)->SetThetaDotRad(...)
 
 }
 

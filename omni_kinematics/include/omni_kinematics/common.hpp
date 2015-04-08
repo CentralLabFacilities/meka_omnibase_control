@@ -16,6 +16,15 @@ namespace omni_kinematics
         double td; // theta_dot
     };
 
+    struct Pose
+    {
+        Pose(): x(0), y(0), t(0) {}
+
+        double x;
+        double y;
+        double t; // theta
+    };
+
     /// \brief Integrate a twist (vel) over a duration d.
     ///
     /// Figure out the ICR and where it should end.
