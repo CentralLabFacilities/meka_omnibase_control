@@ -17,6 +17,20 @@ class MekaOmnibaseControl(M3Component):
             self.command.xd_des.append(0)
         self.command.ctrl_mode = mob.MEKA_OMNIBASE_CONTROL_OFF
 
-if __name__ == "__main__":
-    moc = MekaOmnibaseControl("meka_omnibase_control_mb2", "meka_omnibase_control")
+    def get_current_twist(self):
+        return (self.status.l_vel[0],
+                self.status.l_vel[1],
+                self.status.l_vel[2])
 
+    def get_global_position(self):
+        return (0,0,0)
+
+    def set_mode_on(self):
+        self.command.ctrl_mode = mob.MEKA_OMNIBASE_CONTROL_ON
+    def set_mode_off(self):
+        self.command.ctrl_mode = mob.MEKA_OMNIBASE_CONTROL_OFF
+
+    def set_desired_twist(self, xd, yd, td):
+        self.command.xd_des[0] = xd
+        self.command.xd_des[1] = yd
+        self.command.xd_des[2] = td
