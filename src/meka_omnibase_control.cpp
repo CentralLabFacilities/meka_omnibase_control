@@ -113,12 +113,34 @@ void MekaOmnibaseControl::StepStatus()
     status_.set_g_pos(1, robot_.pose().y);
     status_.set_g_pos(2, robot_.pose().t);
     
-    // Step control (if enabled). 
-    // TODO!
-    // m3joints_.->GetJoint(i)->SetThetaDotRad(...)
-
 }
 
 void MekaOmnibaseControl::StepCommand()
 {
+    using VectorType = omni_kinematics::Robot::VectorType;
+    using Twist      = omni_kinematics::Twist;
+
+    Twist twist;
+    twist.xd = command_.xd_des(0);
+    twist.yd = command_.xd_des(1);
+    twist.td = command_.xd_des(2);
+    ctrl_.saturateTwist(twist, 1.0 / RT_TASK_FREQUENCY, true);
+
+    VectorType betad(NUM_CASTERS, 0.0);
+    VectorType phid(NUM_CASTERS, 0.0);
+
+    if (command_.ctrl_mode() == MEKA_OMNIBASE_CONTROL_ON) {
+        ctrl_.calcCommand(twist, betad, phid);
+        for (int i = 0; i < NUM_CASTERS; ++i) {
+            m3joints_->GetJoint(i*2)->SetDesiredControlMode(JOINT_MODE_THETADOT);
+            m3joints_->GetJoint(i*2)->SetDesiredThetaDotRad(betad[i]);
+            m3joints_->GetJoint(i*2+1)->SetDesiredControlMode(JOINT_MODE_THETADOT);
+            m3joints_->GetJoint(i*2+1)->SetDesiredThetaDotRad(phid[i]);
+        }
+    } else {
+        for (int i = 0; i < NUM_CASTERS*2; ++i) {
+            m3joints_->GetJoint(i)->SetDesiredControlMode(JOINT_MODE_OFF);
+        }
+    }
 }
+
