@@ -23,6 +23,8 @@ namespace meka_omnibase_control
         omni_kinematics::Robot                  robot_;
         omni_kinematics::MotionControl          ctrl_;
 
+        double                                  beta_offsets_[NUM_CASTERS];
+
         std::string                             m3joints_name_;
         std::string                             m3pwr_name_;
 

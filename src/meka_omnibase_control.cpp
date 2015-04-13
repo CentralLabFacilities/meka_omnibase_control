@@ -35,6 +35,10 @@ bool MekaOmnibaseControl::ReadConfig(const char* filename)
     robot_.d() = doc["param"]["d"].as<VectorType>();
     robot_.r() = doc["param"]["r"].as<VectorType>();
 
+    std::vector<double>& beta_offsets = 
+        doc["param"]["beta_offsets"].as<VectorType>();
+    std::copy(beta_offsets.begin(), beta_offsets.end(), &beta_offsets_[0]);
+
     robot_.maxBetad() = doc["param"]["betad_max"].as<VectorType>();
     robot_.maxBetadd() = doc["param"]["betadd_max"].as<VectorType>();
     robot_.maxPhid() = doc["param"]["phid_max"].as<VectorType>();
@@ -86,17 +90,18 @@ void MekaOmnibaseControl::Shutdown()
 
 void MekaOmnibaseControl::StepStatus()
 {
+    using VectorType = omni_kinematics::Robot::VectorType;
+    static VectorType beta(4);
+    static VectorType betad(4);
+    static VectorType phid(4);
+
     if (IsStateError()) {
         return;
     }
 
     // Update state in robot model.
-    using VectorType = omni_kinematics::Robot::VectorType;
-    VectorType beta(4);
-    VectorType betad(4);
-    VectorType phid(4);
     for (int i = 0; i < NUM_CASTERS; ++i) {
-        beta[i]  = m3joints_->GetJoint(i*2)->GetThetaRad();
+        beta[i]  = m3joints_->GetJoint(i*2)->GetThetaRad() + beta_offsets_[i];
         betad[i] = m3joints_->GetJoint(i*2)->GetThetaDotRad();
         phid[i]  = m3joints_->GetJoint(i*2 + 1)->GetThetaDotRad();
         status_.set_beta(i, beta[i]);
@@ -120,14 +125,14 @@ void MekaOmnibaseControl::StepCommand()
     using VectorType = omni_kinematics::Robot::VectorType;
     using Twist      = omni_kinematics::Twist;
 
-    Twist twist;
+    static Twist twist;
+    static VectorType betad(NUM_CASTERS, 0.0);
+    static VectorType phid(NUM_CASTERS, 0.0);
+
     twist.xd = command_.xd_des(0);
     twist.yd = command_.xd_des(1);
     twist.td = command_.xd_des(2);
     ctrl_.saturateTwist(twist, 1.0 / RT_TASK_FREQUENCY, true);
-
-    VectorType betad(NUM_CASTERS, 0.0);
-    VectorType phid(NUM_CASTERS, 0.0);
 
     if (command_.ctrl_mode() == MEKA_OMNIBASE_CONTROL_ON) {
         ctrl_.calcCommand(twist, betad, phid);
