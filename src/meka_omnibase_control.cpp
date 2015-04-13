@@ -35,7 +35,7 @@ bool MekaOmnibaseControl::ReadConfig(const char* filename)
     robot_.d() = doc["param"]["d"].as<VectorType>();
     robot_.r() = doc["param"]["r"].as<VectorType>();
 
-    std::vector<double>& beta_offsets = 
+    const std::vector<double>& beta_offsets = 
         doc["param"]["beta_offsets"].as<VectorType>();
     std::copy(beta_offsets.begin(), beta_offsets.end(), &beta_offsets_[0]);
 
