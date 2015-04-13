@@ -14,7 +14,7 @@ param:
     l: [0.2678, 0.2678, 0.2678, 0.2678]
     d: [0.0200, 0.0200, 0.0200, 0.0200]
     r: [0.0550, 0.0550, 0.0550, 0.0550]
-    beta_offset: [0.0, 0.0, 0.0, 0.0] # TODO: Real values!
+    beta_offset: [0.0, 0.0, 0.0, 0.0] # TODO: Real values (+/- 45 deg)!
 
     # TODO: Real values!
     betad_max: [1.0, 1.0, 1.0, 1.0]
