@@ -49,6 +49,15 @@ bool MekaOmnibaseControl::ReadConfig(const char* filename)
     robot_.maxBetadd() = doc["param"]["betadd_max"].as<VectorType>();
     robot_.maxPhid() = doc["param"]["phid_max"].as<VectorType>();
     robot_.maxPhidd() = doc["param"]["phidd_max"].as<VectorType>();
+    
+    double ns = doc["param"]["casters"]["ns"].as<double>();
+    double nt = doc["param"]["casters"]["nt"].as<double>();
+    double nw = doc["param"]["casters"]["nw"].as<double>();
+    double kp = doc["param"]["casters"]["kp"].as<double>();
+
+    for (int i = 0; i < NUM_CASTERS; ++i) {
+        casters_[i] = CasterControl(ns, nt, nw, kp);
+    }
 
     robot_.calcConstraints();
 
@@ -117,6 +126,9 @@ void MekaOmnibaseControl::StepStatus()
         status_.set_beta(i, beta[i]);
         status_.set_beta_d(i, betad[i]);
         status_.set_phi_d(i, phid[i]);
+
+        // TODO: Fill proper values from actuators !!!
+        casters_[i].stepStatus(betad[i], phid[i]);
     }
     robot_.updateState(beta, betad, phid, 1.0 / RT_TASK_FREQUENCY);
 
@@ -153,7 +165,6 @@ void MekaOmnibaseControl::StepCommand()
             m3joints_->GetJoint(i*2+1)->SetDesiredControlMode(JOINT_MODE_THETADOT);
             m3joints_->GetJoint(i*2+1)->SetDesiredThetaDotRad(phid[i]);
         }
-*/
         M3JointArrayCommand* cmd = (M3JointArrayCommand*)m3joints_->GetCommand();
         m3joints_->GetJoint(0)->DisablePwmRamp();
         m3joints_->GetJoint(0)->SetDesiredControlMode(JOINT_MODE_TORQUE);
@@ -161,6 +172,19 @@ void MekaOmnibaseControl::StepCommand()
         m3joints_->GetJoint(1)->DisablePwmRamp();
         m3joints_->GetJoint(1)->SetDesiredControlMode(JOINT_MODE_TORQUE);
         m3joints_->GetJoint(1)->SetDesiredTorque(00.0);
+*/
+        for (int i = 0; i < NUM_CASTERS; ++i) {
+            double tq0, tq1;
+            casters_[i].stepCommand(betad[i], phid[i]);
+            casters_[i].tq(tq0, tq1);
+            m3joints_->GetJoint(i*2  )->DisablePwmRamp();
+            m3joints_->GetJoint(i*2  )->SetDesiredControlMode(JOINT_MODE_TORQUE);
+            m3joints_->GetJoint(i*2  )->SetDesiredTorque(tq0);
+            m3joints_->GetJoint(i*2+1)->DisablePwmRamp();
+            m3joints_->GetJoint(i*2+1)->SetDesiredControlMode(JOINT_MODE_TORQUE);
+            m3joints_->GetJoint(i*2+1)->SetDesiredTorque(tq1);
+        }
+
     } else {
         for (int i = 0; i < NUM_CASTERS*2; ++i) {
             m3joints_->GetJoint(i)->SetDesiredControlMode(JOINT_MODE_OFF);

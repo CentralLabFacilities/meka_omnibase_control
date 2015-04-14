@@ -69,6 +69,7 @@ set(LIBS ${LIBS} ${orocos_kdl_LIBRARIES})
 set(LIBS ${LIBS} ${RTAI_LIBRARIES}  pthread ${Boost_LIBRARIES} ${EIGEN3_LIBRARIES} ${PROTOBUF_LIBRARIES} m3chains m3toolbox m3hardware m3base)
 
 set( ALL_SRCS 
+    src/caster_control.cpp
     src/meka_omnibase_control.cpp
     src/factory_proxy.cpp
 )

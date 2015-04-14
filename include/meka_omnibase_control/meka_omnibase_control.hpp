@@ -7,6 +7,7 @@
 #include <m3/hardware/pwr.h>
 #include <omni_kinematics/robot.hpp>
 #include <omni_kinematics/control.hpp>
+#include <meka_omnibase_control/caster_control.hpp>
 #include "meka_omnibase_control.pb.h"
 
 namespace meka_omnibase_control
@@ -22,6 +23,8 @@ namespace meka_omnibase_control
 
         omni_kinematics::Robot                  robot_;
         omni_kinematics::MotionControl          ctrl_;
+
+        CasterControl                           casters_[NUM_CASTERS];
 
         double                                  beta_offset_[NUM_CASTERS];
         double                                  beta_ratio_[NUM_CASTERS];
