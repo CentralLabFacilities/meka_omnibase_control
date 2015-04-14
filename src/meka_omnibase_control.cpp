@@ -35,9 +35,15 @@ bool MekaOmnibaseControl::ReadConfig(const char* filename)
     robot_.d() = doc["param"]["d"].as<VectorType>();
     robot_.r() = doc["param"]["r"].as<VectorType>();
 
-    const std::vector<double>& beta_offsets = 
-        doc["param"]["beta_offsets"].as<VectorType>();
-    std::copy(beta_offsets.begin(), beta_offsets.end(), &beta_offsets_[0]);
+    const std::vector<double>& beta_offset = 
+        doc["param"]["beta_offset"].as<VectorType>();
+    std::copy(beta_offset.begin(), beta_offset.end(), &beta_offset_[0]);
+    const std::vector<double>& beta_ratio = 
+        doc["param"]["beta_ratio"].as<VectorType>();
+    std::copy(beta_ratio.begin(), beta_ratio.end(), &beta_ratio_[0]);
+    const std::vector<double>& phid_ratio = 
+        doc["param"]["phid_ratio"].as<VectorType>();
+    std::copy(phid_ratio.begin(), phid_ratio.end(), &phid_ratio_[0]);
 
     robot_.maxBetad() = doc["param"]["betad_max"].as<VectorType>();
     robot_.maxBetadd() = doc["param"]["betadd_max"].as<VectorType>();
@@ -101,9 +107,13 @@ void MekaOmnibaseControl::StepStatus()
 
     // Update state in robot model.
     for (int i = 0; i < NUM_CASTERS; ++i) {
-        beta[i]  = m3joints_->GetJoint(i*2)->GetThetaRad() + beta_offsets_[i];
+        beta[i]  = omni_kinematics::normalizedAngle(
+                       m3joints_->GetJoint(i*2)->GetThetaRad() + 
+                       beta_offset_[i]) *
+                   beta_ratio_[i];
         betad[i] = m3joints_->GetJoint(i*2)->GetThetaDotRad();
-        phid[i]  = m3joints_->GetJoint(i*2 + 1)->GetThetaDotRad();
+        phid[i]  = m3joints_->GetJoint(i*2 + 1)->GetThetaDotRad() *
+                   phid_ratio_[i];
         status_.set_beta(i, beta[i]);
         status_.set_beta_d(i, betad[i]);
         status_.set_phi_d(i, phid[i]);
@@ -136,12 +146,21 @@ void MekaOmnibaseControl::StepCommand()
 
     if (command_.ctrl_mode() == MEKA_OMNIBASE_CONTROL_ON) {
         ctrl_.calcCommand(twist, betad, phid);
+/*
         for (int i = 0; i < NUM_CASTERS; ++i) {
             m3joints_->GetJoint(i*2)->SetDesiredControlMode(JOINT_MODE_THETADOT);
             m3joints_->GetJoint(i*2)->SetDesiredThetaDotRad(betad[i]);
             m3joints_->GetJoint(i*2+1)->SetDesiredControlMode(JOINT_MODE_THETADOT);
             m3joints_->GetJoint(i*2+1)->SetDesiredThetaDotRad(phid[i]);
         }
+*/
+        M3JointArrayCommand* cmd = (M3JointArrayCommand*)m3joints_->GetCommand();
+        m3joints_->GetJoint(0)->DisablePwmRamp();
+        m3joints_->GetJoint(0)->SetDesiredControlMode(JOINT_MODE_TORQUE);
+        m3joints_->GetJoint(0)->SetDesiredTorque(200.0);
+        m3joints_->GetJoint(1)->DisablePwmRamp();
+        m3joints_->GetJoint(1)->SetDesiredControlMode(JOINT_MODE_TORQUE);
+        m3joints_->GetJoint(1)->SetDesiredTorque(00.0);
     } else {
         for (int i = 0; i < NUM_CASTERS*2; ++i) {
             m3joints_->GetJoint(i)->SetDesiredControlMode(JOINT_MODE_OFF);
