@@ -37,6 +37,7 @@ namespace meka_omnibase_control
         double nw_;
         double nt_;
         double kp_;
+        double kd_;
 
         double e_[2];   // current motor angles.
         double ed_[2];  // current motor velocities.
@@ -51,10 +52,11 @@ namespace meka_omnibase_control
         /// \param nw Gear ratio (see above).
         /// \param nt Gear ratio (see above).
         /// \param kp Proportional gain for torque output.
-        CasterControl(double ns, double nw, double nt, double kp);
+        /// \param kd Damping gain for torque output.
+        CasterControl(double ns, double nw, double nt, double kp, double kd);
 
         /// \brief Default constructor.
-        CasterControl(): ns_(1), nw_(1), nt_(1), kp_(1) {}
+        CasterControl(): ns_(1), nw_(1), nt_(1), kp_(1), kd_(1) {}
 
         /// \brief Update the current joint velocities from the motor
         ///        velocities.

@@ -91,7 +91,7 @@ class OmniBridge:
 
         xd = self.cmd_vel.linear.x
         yd = self.cmd_vel.linear.y
-        td = self.cmd_vel.angular.z / math.pi * 180.0
+        td = self.cmd_vel.angular.z
 
         self.omni.set_mode_on()
         self.omni.set_desired_twist(xd,yd,td)
