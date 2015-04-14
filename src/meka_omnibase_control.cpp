@@ -106,9 +106,10 @@ void MekaOmnibaseControl::Shutdown()
 void MekaOmnibaseControl::StepStatus()
 {
     using VectorType = omni_kinematics::Robot::VectorType;
-    static VectorType beta(4);
-    static VectorType betad(4);
-    static VectorType phid(4);
+    static VectorType beta(NUM_CASTERS);
+    static VectorType betad(NUM_CASTERS);
+    static VectorType phi(NUM_CASTERS);
+    static VectorType phid(NUM_CASTERS);
 
     if (IsStateError()) {
         return;
@@ -116,20 +117,35 @@ void MekaOmnibaseControl::StepStatus()
 
     // Update state in robot model.
     for (int i = 0; i < NUM_CASTERS; ++i) {
+        double e[2], ed[2];
         beta[i]  = omni_kinematics::normalizedAngle(
                        m3joints_->GetJoint(i*2)->GetThetaRad() + 
                        beta_offset_[i]) *
                    beta_ratio_[i];
-        betad[i] = m3joints_->GetJoint(i*2)->GetThetaDotRad();
-        phid[i]  = m3joints_->GetJoint(i*2 + 1)->GetThetaDotRad() *
-                   phid_ratio_[i];
+
+        e[0]  = m3joints_->GetJoint(i*2  )->GetThetaRad();
+        e[1]  = m3joints_->GetJoint(i*2+1)->GetThetaRad();
+        ed[0] = m3joints_->GetJoint(i*2  )->GetThetaDotRad();
+        ed[1] = m3joints_->GetJoint(i*2+1)->GetThetaDotRad();
+
+        // Use the caster status update to convert motor velocities to joint
+        // velocities (we're interested in what's passed the gearbox).
+        casters_[i].stepStatus(e, ed);
+        casters_[i].q(beta[i], phi[i]); // phi is unused.
+        casters_[i].qd(betad[i], phid[i]);
+
+        // Geometrical transforms to allow reversed directions and sensor
+        // offsets:
+        beta[i]  = beta_ratio_[i] * 
+                   omni_kinematics::normalizedAngle(beta[i] + beta_offset_[i]);
+        betad[i] = beta_ratio_[i] * betad[i];
+
         status_.set_beta(i, beta[i]);
         status_.set_beta_d(i, betad[i]);
         status_.set_phi_d(i, phid[i]);
 
-        // TODO: Fill proper values from actuators !!!
-        casters_[i].stepStatus(betad[i], phid[i]);
     }
+
     robot_.updateState(beta, betad, phid, 1.0 / RT_TASK_FREQUENCY);
 
     // Update the external status.
@@ -173,11 +189,12 @@ void MekaOmnibaseControl::StepCommand()
         m3joints_->GetJoint(1)->SetDesiredControlMode(JOINT_MODE_TORQUE);
         m3joints_->GetJoint(1)->SetDesiredTorque(00.0);
 */
-        for (int i = 0; i < NUM_CASTERS; ++i) {
+        // NOTE: ONLY THE FIRST CASTER IS CONTROLLED: (for testing):
+        for (int i = 0; i < 1; ++i) {
             double tq0, tq1;
             casters_[i].stepCommand(betad[i], phid[i]);
             casters_[i].tq(tq0, tq1);
-            m3joints_->GetJoint(i*2  )->DisablePwmRamp();
+            m3joints_->GetJoint(i*2  )->DisablePwmRamp();   // Make sure this is necessary
             m3joints_->GetJoint(i*2  )->SetDesiredControlMode(JOINT_MODE_TORQUE);
             m3joints_->GetJoint(i*2  )->SetDesiredTorque(tq0);
             m3joints_->GetJoint(i*2+1)->DisablePwmRamp();

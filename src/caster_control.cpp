@@ -9,13 +9,15 @@ CasterControl::CasterControl(double ns, double nw, double nt, double kp):
     std::fill(&tq_[0], &tq_[2], 0.0);
 }
 
-void CasterControl::stepStatus(double e_0, double e_1)
+void CasterControl::stepStatus(double e[2], double ed[2])
 {
-    e_[0] = e_0;
-    e_[1] = e_1;
+    std::copy(&e[0], &e[2], e_);
+    std::copy(&ed[0], &ed[2], ed_);
 
-    qd_[0] = e_[0] / ns_;
-    qd_[1] = e_[0] / (ns_ * nw_) - e_[1] / (nt_ * nw_);
+    q_[0]  = e_[0]  / ns_;
+    q_[1]  = e_[0]  / (ns_ * nw_) - ed_[1] / (nt_ * nw_);
+    qd_[0] = ed_[0] / ns_;
+    qd_[1] = ed_[0] / (ns_ * nw_) - ed_[1] / (nt_ * nw_);
 }
 
 void CasterControl::stepCommand(double qd_des_0, double qd_des_1)
@@ -27,7 +29,7 @@ void CasterControl::stepCommand(double qd_des_0, double qd_des_1)
 
     for (int i = 0; i < 2; ++i) {
         // Proportional, additive control
-        tq_[i] += kp_ * (e_des[i] - e_[i]);
+        tq_[i] += kp_ * (e_des[i] - ed_[i]);
     }
 }
 

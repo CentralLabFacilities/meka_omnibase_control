@@ -13,17 +13,17 @@ namespace meka_omnibase_control
     ///
     ///   q_dot = [ beta_dot, phi_dot ]^T,
     ///
-    ///   q_dot = -1 * N * e,
+    ///   q_dot = -1 * N * e_dot,
     ///
     ///   N     = [ -Ns, 0; -Nt, Nt*Nw ] 
     ///
     /// and
     ///
-    ///   e     = -1 * N^-1 * q_dot
+    ///   e_dot = -1 * N^-1 * q_dot
     ///
     ///   N^-1  = [ -1/Ns, 0; -1/(Ns*Nw), 1/(Nt*Nw) ]
     ///
-    /// Where e are the motor velocities and [Ns,Nw,Nt] are gear ratios.
+    /// Where e_dot are the motor velocities and [Ns,Nw,Nt] are gear ratios.
     /// The equations have been extracted from the original, undocumented PCV
     /// control code.
     ///
@@ -38,7 +38,9 @@ namespace meka_omnibase_control
         double nt_;
         double kp_;
 
-        double e_[2];   // current motor velocities.
+        double e_[2];   // current motor angles.
+        double ed_[2];  // current motor velocities.
+        double q_[2];   // Current joint angles
         double qd_[2];  // Current joint velocities.
         double tq_[2];  // Current torque output.
 
@@ -56,7 +58,7 @@ namespace meka_omnibase_control
 
         /// \brief Update the current joint velocities from the motor
         ///        velocities.
-        void stepStatus(double e_0, double e_1);
+        void stepStatus(double e[2], double ed[2]);
 
         /// \brief Update the current command based on the desired joint
         ///        velocities.
@@ -67,6 +69,13 @@ namespace meka_omnibase_control
         {
             tq_0 = tq_[0];
             tq_1 = tq_[1];
+        }
+
+        /// \brief Copy the current joint angles to the referenced array.
+        void q(double& q_0, double& q_1)
+        {
+            q_0 = q_[0];
+            q_1 = q_[1];
         }
 
         /// \brief Copy the current joint velocities to the referenced array.
