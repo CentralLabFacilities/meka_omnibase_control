@@ -1,6 +1,8 @@
 #ifndef CASTER_CONTROL_HPP
 #define CASTER_CONTROL_HPP
 
+#include <m3/toolbox/toolbox.h>
+
 namespace meka_omnibase_control
 {
     /// \brief Meka Omnibase caster controller.
@@ -36,31 +38,35 @@ namespace meka_omnibase_control
         double ns_;
         double nw_;
         double nt_;
+
         double kp_;
+        double ki_;
         double kd_;
+        double ki_range_;
+        double ki_limit_;
 
         double e_[2];   // current motor angles.
         double ed_[2];  // current motor velocities.
+        double edd_[2]; // current motor accelerations.
         double q_[2];   // Current joint angles
         double qd_[2];  // Current joint velocities.
         double tq_[2];  // Current torque output.
 
+        m3::M3PID pid_;
+
     public:
         /// \brief Constructor.
         ///
-        /// \param ns Gear ratio (see original PCV config). 
-        /// \param nw Gear ratio (see above).
-        /// \param nt Gear ratio (see above).
-        /// \param kp Proportional gain for torque output.
-        /// \param kd Damping gain for torque output.
-        CasterControl(double ns, double nw, double nt, double kp, double kd);
+        /// "readConfig" has to be called (with the proper YAML document) to
+        /// fully configure an instance.
+        CasterControl();
 
-        /// \brief Default constructor.
-        CasterControl(): ns_(1), nw_(1), nt_(1), kp_(1), kd_(1) {}
+        /// \brief Read parameters from a YAML node (ns, nw, nt and PID params).
+        void readConfig(YAML::Node& doc);
 
         /// \brief Update the current joint velocities from the motor
-        ///        velocities.
-        void stepStatus(double e[2], double ed[2]);
+        ///        state.
+        void stepStatus(double e[2], double ed[2], double edd[2]);
 
         /// \brief Update the current command based on the desired joint
         ///        velocities.

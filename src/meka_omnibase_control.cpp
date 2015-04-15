@@ -50,14 +50,8 @@ bool MekaOmnibaseControl::ReadConfig(const char* filename)
     robot_.maxPhid() = doc["param"]["phid_max"].as<VectorType>();
     robot_.maxPhidd() = doc["param"]["phidd_max"].as<VectorType>();
     
-    double ns = doc["param"]["casters"]["Ns"].as<double>();
-    double nt = doc["param"]["casters"]["Nt"].as<double>();
-    double nw = doc["param"]["casters"]["Nw"].as<double>();
-    double kp = doc["param"]["casters"]["Kp"].as<double>();
-    double kd = doc["param"]["casters"]["Kd"].as<double>();
-
     for (int i = 0; i < NUM_CASTERS; ++i) {
-        casters_[i] = CasterControl(ns, nt, nw, kp, kd);
+        casters_[i].readConfig(doc);
     }
 
     robot_.calcConstraints();
@@ -118,20 +112,23 @@ void MekaOmnibaseControl::StepStatus()
 
     // Update state in robot model.
     for (int i = 0; i < NUM_CASTERS; ++i) {
-        double e[2], ed[2];
+        double e[2], ed[2], edd[2];
+
         beta[i]  = omni_kinematics::normalizedAngle(
                        m3joints_->GetJoint(i*2)->GetThetaRad() + 
                        beta_offset_[i]) *
                    beta_ratio_[i];
 
-        e[0]  = m3joints_->GetJoint(i*2  )->GetThetaRad();
-        e[1]  = m3joints_->GetJoint(i*2+1)->GetThetaRad();
-        ed[0] = m3joints_->GetJoint(i*2  )->GetThetaDotRad();
-        ed[1] = m3joints_->GetJoint(i*2+1)->GetThetaDotRad();
+        e[0]   = m3joints_->GetJoint(i*2  )->GetThetaRad();
+        e[1]   = m3joints_->GetJoint(i*2+1)->GetThetaRad();
+        ed[0]  = m3joints_->GetJoint(i*2  )->GetThetaDotRad();
+        ed[1]  = m3joints_->GetJoint(i*2+1)->GetThetaDotRad();
+        edd[0] = m3joints_->GetJoint(i*2  )->GetThetaDotDotRad();
+        edd[1] = m3joints_->GetJoint(i*2+1)->GetThetaDotDotRad();
 
         // Use the caster status update to convert motor velocities to joint
         // velocities (we're interested in what's passed the gearbox).
-        casters_[i].stepStatus(e, ed);
+        casters_[i].stepStatus(e, ed, edd);
         casters_[i].q(beta[i], phi[i]); // phi is unused.
         casters_[i].qd(betad[i], phid[i]);
 
