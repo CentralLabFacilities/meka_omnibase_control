@@ -193,7 +193,7 @@ void MekaOmnibaseControl::StepCommand()
         for (int i = 0; i < 1; ++i) {
             double tq0, tq1;
             // TEMP: 
-            betad[i] = 1.0;
+            // betad[i] = 1.0;
 
             casters_[i].stepCommand(betad[i], phid[i]);
             casters_[i].tq(tq0, tq1);
@@ -203,8 +203,8 @@ void MekaOmnibaseControl::StepCommand()
 
             //m3joints_->GetJoint(i*2  )->DisablePwmRamp();   // Make sure this is necessary
             //m3joints_->GetJoint(i*2+1)->DisablePwmRamp();
-	    cmd->set_ctrl_mode(i*2,   JOINT_ARRAY_MODE_TORQUE);
-	    cmd->set_ctrl_mode(i*2+1, JOINT_ARRAY_MODE_TORQUE);
+            cmd->set_ctrl_mode(i*2,   JOINT_ARRAY_MODE_TORQUE);
+            cmd->set_ctrl_mode(i*2+1, JOINT_ARRAY_MODE_TORQUE);
             cmd->set_tq_desired(i*2,   -tq0);
             cmd->set_tq_desired(i*2+1, -tq1);
         }
