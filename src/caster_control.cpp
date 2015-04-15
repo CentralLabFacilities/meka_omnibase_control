@@ -22,6 +22,11 @@ void CasterControl::readConfig(YAML::Node& doc)
 
 }
 
+void CasterControl::reset()
+{
+    pid_.ResetIntegrator();
+}
+
 void CasterControl::stepStatus(double e[2], double ed[2], double edd[2])
 {
     std::copy(&e[0],   &e[2],   e_);

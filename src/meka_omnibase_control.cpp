@@ -89,9 +89,11 @@ void MekaOmnibaseControl::Startup()
    param_.set_tdd_max(0.0);
 
    command_.set_ctrl_mode(MEKA_OMNIBASE_CONTROL_OFF);
+   last_ctrl_mode_ = MEKA_OMNIBASE_CONTROL_OFF;
 
    // Reset global odometry.
    robot_.resetPose();
+   
 }
 
 void MekaOmnibaseControl::Shutdown()
@@ -188,9 +190,14 @@ void MekaOmnibaseControl::StepCommand()
         m3joints_->GetJoint(1)->SetDesiredControlMode(JOINT_MODE_TORQUE);
         m3joints_->GetJoint(1)->SetDesiredTorque(00.0);
 */
+
         M3JointArrayCommand* cmd = (M3JointArrayCommand*)m3joints_->GetCommand();
         // NOTE: ONLY THE FIRST CASTER IS CONTROLLED: (for testing):
         for (int i = 0; i < 1; ++i) {
+            if (last_ctrl_mode_ != MEKA_OMNIBASE_CONTROL_ON) {
+                casters_[i].reset();
+            }
+
             double tq0, tq1;
             // TEMP: 
             // betad[i] = 1.0;
@@ -215,5 +222,7 @@ void MekaOmnibaseControl::StepCommand()
             m3joints_->GetJoint(i)->SetDesiredControlMode(JOINT_MODE_OFF);
         }
     }
+
+    last_ctrl_mode_ = command_.ctrl_mode();
 }
 

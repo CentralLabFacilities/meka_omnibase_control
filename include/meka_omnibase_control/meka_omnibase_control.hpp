@@ -36,6 +36,8 @@ namespace meka_omnibase_control
         m3::M3JointArray*                       m3joints_;
         m3::M3Pwr*                              m3pwr_;
 
+        int                                     last_ctrl_mode_;
+
     public:
         MekaOmnibaseControl():
             m3rt::M3Component(ROBOT_PRIORITY),
