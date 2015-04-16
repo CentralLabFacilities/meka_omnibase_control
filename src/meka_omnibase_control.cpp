@@ -134,8 +134,8 @@ void MekaOmnibaseControl::StepStatus()
 
         // Geometrical transforms to allow reversed directions and sensor
         // offsets:
-        beta[i]  = beta_ratio_[i] * 
-                   omni_kinematics::normalizedAngle(beta[i] + beta_offset_[i]);
+        beta[i]  = beta_ratio_[i] * omni_kinematics::normalizedAngle(
+                                        beta[i] + beta_offset_[i]);
         betad[i] = beta_ratio_[i] * betad[i];
 
         //std::cerr << "betad: " << betad[i] << " phid:" << phid[i] << std::endl; 

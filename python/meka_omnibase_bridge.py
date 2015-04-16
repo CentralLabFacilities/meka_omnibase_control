@@ -124,28 +124,30 @@ class OmniBridge:
 
         self.pub_odom.publish(odom)
 
-	# Diagnostics
+	    # Diagnostics
         self.diag_i = self.diag_i + 1
         if (self.diag_i > 5):
+            rospy.logdebug("alpha: " + str(self.omni.status.alpha))
             rospy.logdebug("beta:  " + str(self.omni.status.beta))
             rospy.logdebug("betad: " + str(self.omni.status.beta_d))
             rospy.logdebug("phid:  " + str(self.omni.status.phi_d))
             self.diag_i = 0
 
-        for i in range(0,4):
-            l = self.omni.status.l[i]
-            alpha = self.omni.status.alpha[i]
-            x = l * math.cos(alpha)
-            y = l * math.sin(alpha)
-            q = tf.transformations.quaternion_from_euler(
-                    0,
-                    0,
-                    alpha + self.omni.status.beta[i] - math.pi/2.0)
-            self.tf_bc.sendTransform((x,y,0),
-                                     q,
-                                     odom_time,
-                                     "caster_" + str(i),
-                                     "base_link")
+            for i in range(0,4):
+                l = self.omni.status.l[i]
+                alpha = self.omni.status.alpha[i]
+                x = l * math.cos(alpha)
+                y = l * math.sin(alpha)
+                q = tf.transformations.quaternion_from_euler(
+                        0,
+                        0,
+                        alpha + self.omni.status.beta[i] - math.pi/2.0)
+                self.tf_bc.sendTransform((x,y,0),
+                                         q,
+                                         odom_time,
+                                         "caster_" + str(i),
+                                         "base_link")
+                rospy.sleep(0.01)
 
 if __name__=='__main__':
 

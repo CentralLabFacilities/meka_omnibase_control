@@ -51,10 +51,10 @@ namespace omni_kinematics
         // range, so we'll rarely go each test more than once.
         double r = a;
         while (r < -M_PI) {
-            r += M_PI;
+            r += 2*M_PI;
         }
         while (r > M_PI) {
-            r -= M_PI;
+            r -= 2*M_PI;
         }
 
         return r;
