@@ -15,6 +15,9 @@ message MekaOmnibaseControlStatus
     repeated double       beta   = 4;
     repeated double       beta_d = 5;
     repeated double       phi_d  = 6;
+
+    repeated double       alpha  = 7; // Static geometry params.
+    repeated double       l      = 8;
 }
 
 message MekaOmnibaseControlParam

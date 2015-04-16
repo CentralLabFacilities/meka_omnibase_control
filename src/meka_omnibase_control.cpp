@@ -80,6 +80,9 @@ void MekaOmnibaseControl::Startup()
        status_.add_beta(0.0);
        status_.add_beta_d(0.0);
        status_.add_phi_d(0.0);
+
+       status_.add_alpha(robot_.alpha()[i]);
+       status_.add_l(robot_.l()[i]);
    }
 
    // NOTE: Cartesian limits currently ignored.
