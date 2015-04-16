@@ -116,11 +116,6 @@ void MekaOmnibaseControl::StepStatus()
     for (int i = 0; i < NUM_CASTERS; ++i) {
         double e[2], ed[2], edd[2];
 
-        beta[i]  = omni_kinematics::normalizedAngle(
-                       m3joints_->GetJoint(i*2)->GetThetaRad() + 
-                       beta_offset_[i]) *
-                   beta_ratio_[i];
-
         e[0]   = m3joints_->GetJoint(i*2  )->GetThetaRad();
         e[1]   = m3joints_->GetJoint(i*2+1)->GetThetaRad();
         ed[0]  = m3joints_->GetJoint(i*2  )->GetThetaDotRad();
@@ -139,7 +134,8 @@ void MekaOmnibaseControl::StepStatus()
         beta[i]  = beta_ratio_[i] * 
                    omni_kinematics::normalizedAngle(beta[i] + beta_offset_[i]);
         betad[i] = beta_ratio_[i] * betad[i];
-        std::cerr << "betad: " << betad[i] << " phid:" << phid[i] << std::endl; 
+
+        //std::cerr << "betad: " << betad[i] << " phid:" << phid[i] << std::endl; 
 
         status_.set_beta(i, beta[i]);
         status_.set_beta_d(i, betad[i]);
@@ -168,10 +164,16 @@ void MekaOmnibaseControl::StepCommand()
     static VectorType betad(NUM_CASTERS, 0.0);
     static VectorType phid(NUM_CASTERS, 0.0);
 
-    twist.xd = command_.xd_des(0);
+    twist.xd = 0.1; //command_.xd_des(0);
     twist.yd = command_.xd_des(1);
     twist.td = command_.xd_des(2);
     ctrl_.saturateTwist(twist, 1.0 / RT_TASK_FREQUENCY, true);
+
+    std::cerr << "betas: " << robot_.beta()[0] << ", "
+                           << robot_.beta()[1] << ", "
+                           << robot_.beta()[2] << ", "
+                           << robot_.beta()[3] << ", "
+              << std::endl; 
 
     if (command_.ctrl_mode() == MEKA_OMNIBASE_CONTROL_ON) {
         ctrl_.calcCommand(twist, betad, phid);
@@ -191,27 +193,40 @@ void MekaOmnibaseControl::StepCommand()
         m3joints_->GetJoint(1)->SetDesiredTorque(00.0);
 */
 
+
+
         M3JointArrayCommand* cmd = (M3JointArrayCommand*)m3joints_->GetCommand();
-        // NOTE: ONLY THE FIRST CASTER IS CONTROLLED: (for testing):
-        for (int i = 0; i < 1; ++i) {
+        for (int i = 0; i < NUM_CASTERS; ++i) {
+
             if (last_ctrl_mode_ != MEKA_OMNIBASE_CONTROL_ON) {
                 casters_[i].reset();
             }
 
             double tq0, tq1;
-            // TEMP: 
-            // betad[i] = 1.0;
 
             casters_[i].stepCommand(betad[i], phid[i]);
             casters_[i].tq(tq0, tq1);
 
-            std::cerr << "betad: " << betad[i] << " phid:" << phid[i] << std::endl; 
-            std::cerr << "tqs: " << tq0 << " " << tq1 << std::endl; 
+            //std::cerr << "betad: " << robot_.betad()[i] 
+            //          << " phid:"  << robot_.phid()[i] 
+            //          << std::endl; 
+            //std::cerr << "tqs: " << tq0 << " " << tq1 << std::endl; 
+            // TEMP:
+            //tq0 = 0.0;
 
-            //m3joints_->GetJoint(i*2  )->DisablePwmRamp();   // Make sure this is necessary
-            //m3joints_->GetJoint(i*2+1)->DisablePwmRamp();
-            cmd->set_ctrl_mode(i*2,   JOINT_ARRAY_MODE_TORQUE);
-            cmd->set_ctrl_mode(i*2+1, JOINT_ARRAY_MODE_TORQUE);
+            /*
+            if (i != 3) {
+                tq0 = tq1 = 0.0;
+            } else {
+                std::cerr << "betad des: " << betad[i] 
+                          << " phid des: " << phid[i]
+                          << std::endl;
+            }
+            */
+            m3joints_->GetJoint(i*2  )->DisablePwmRamp();   // Make sure this is necessary
+            m3joints_->GetJoint(i*2+1)->DisablePwmRamp();
+            cmd->set_ctrl_mode(i*2,    JOINT_ARRAY_MODE_TORQUE);
+            cmd->set_ctrl_mode(i*2+1,  JOINT_ARRAY_MODE_TORQUE);
             cmd->set_tq_desired(i*2,   -tq0);
             cmd->set_tq_desired(i*2+1, -tq1);
         }
