@@ -47,6 +47,8 @@ class OmniBridge:
         self.last_cmd = rospy.Time(0)
         self.timeout  = rospy.Duration(0.25)
 
+        self.l = [0.25,0.25,0.25,0.25]
+        self.alpha = [math.pi/3, 2*math.pi/3, -2*math.pi/3, -math.pi/3]
         self.diag_i = 0
 
     def __del__(self):
@@ -131,6 +133,19 @@ class OmniBridge:
             rospy.logdebug("betad: " + str(self.omni.status.beta_d))
             rospy.logdebug("phid:  " + str(self.omni.status.phi_d))
             self.diag_i = 0
+
+        for i in range(0,4):
+            x = self.l[i] * math.cos(self.alpha[i])
+            y = self.l[i] * math.sin(self.alpha[i])
+            q = tf.transformations.quaternion_from_euler(
+                    0,
+                    0,
+                    self.alpha[i] + self.omni.status.beta[i] - math.pi/2.0)
+            self.tf_bc.sendTransform((x,y,0),
+                                     q,
+                                     odom_time,
+                                     "caster_" + str(i),
+                                     "base_link")
 
 if __name__=='__main__':
 
