@@ -18,6 +18,8 @@ message MekaOmnibaseControlStatus
 
     repeated double       alpha  = 7; // Static geometry params.
     repeated double       l      = 8;
+
+    repeated bool         calib  = 9; // Calibration status for each caster.
 }
 
 message MekaOmnibaseControlParam

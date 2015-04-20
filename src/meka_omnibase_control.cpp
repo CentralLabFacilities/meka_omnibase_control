@@ -83,6 +83,8 @@ void MekaOmnibaseControl::Startup()
 
        status_.add_alpha(robot_.alpha()[i]);
        status_.add_l(robot_.l()[i]);
+
+       status_.add_calib(false);
    }
 
    // NOTE: Cartesian limits currently ignored.
@@ -119,12 +121,27 @@ void MekaOmnibaseControl::StepStatus()
     for (int i = 0; i < NUM_CASTERS; ++i) {
         double e[2], ed[2], edd[2];
 
-        e[0]   = m3joints_->GetJoint(i*2  )->GetThetaRad();
-        e[1]   = m3joints_->GetJoint(i*2+1)->GetThetaRad();
-        ed[0]  = m3joints_->GetJoint(i*2  )->GetThetaDotRad();
-        ed[1]  = m3joints_->GetJoint(i*2+1)->GetThetaDotRad();
-        edd[0] = m3joints_->GetJoint(i*2  )->GetThetaDotDotRad();
-        edd[1] = m3joints_->GetJoint(i*2+1)->GetThetaDotDotRad();
+        m3::M3Joint* joint0 = m3joints_->GetJoint(i*2);
+        m3::M3Joint* joint1 = m3joints_->GetJoint(i*2+1);
+
+        // We rely on the first motor encoder for each pair, as a breakbeam
+        // sensor is used to 'reliably' locate the zero.
+        bool calib = joint0->IsEncoderCalibrated();
+        if (!calib) {
+            // Encoder not calibrated, turn on the breakbeam sensor.
+            joint0->SetLimitSwitchNegZeroEncoder();
+        } else {
+            // Encoder calibrated, turn off the breakbeam sensor.
+            joint0->ClrLimitSwitchNegZeroEncoder();
+        }
+        status_.set_calib(i, calib);
+
+        e[0]   = joint0->GetThetaRad();
+        e[1]   = joint1->GetThetaRad();
+        ed[0]  = joint0->GetThetaDotRad();
+        ed[1]  = joint1->GetThetaDotRad();
+        edd[0] = joint0->GetThetaDotDotRad();
+        edd[1] = joint1->GetThetaDotDotRad();
 
         // Use the caster status update to convert motor velocities to joint
         // velocities (we're interested in what's passed the gearbox).
