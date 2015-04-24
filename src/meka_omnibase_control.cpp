@@ -189,12 +189,6 @@ void MekaOmnibaseControl::StepCommand()
     twist.td = command_.xd_des(2);
     ctrl_.saturateTwist(twist, 1.0 / RT_TASK_FREQUENCY, true);
 
-    std::cerr << "betas: " << robot_.beta()[0] << ", "
-                           << robot_.beta()[1] << ", "
-                           << robot_.beta()[2] << ", "
-                           << robot_.beta()[3] << ", "
-              << std::endl; 
-
     if (command_.ctrl_mode() == MEKA_OMNIBASE_CONTROL_ON) {
         ctrl_.calcCommand(twist, betad, phid);
 /*
@@ -212,6 +206,12 @@ void MekaOmnibaseControl::StepCommand()
         m3joints_->GetJoint(1)->SetDesiredControlMode(JOINT_MODE_TORQUE);
         m3joints_->GetJoint(1)->SetDesiredTorque(00.0);
 */
+
+        std::cerr << "betas: " << robot_.beta()[0] << ", "
+                               << robot_.beta()[1] << ", "
+                               << robot_.beta()[2] << ", "
+                               << robot_.beta()[3] << ", "
+                  << std::endl; 
 
 
 
