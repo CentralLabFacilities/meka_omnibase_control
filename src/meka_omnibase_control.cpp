@@ -77,6 +77,9 @@ void MekaOmnibaseControl::Startup()
    }
   
    for (int i = 0; i < NUM_CASTERS; ++i) {
+       command_.add_betad_des(0.0);
+       command_.add_phid_des(0.0);
+
        status_.add_beta(0.0);
        status_.add_beta_d(0.0);
        status_.add_phi_d(0.0);
@@ -178,6 +181,7 @@ void MekaOmnibaseControl::StepStatus()
 
 void MekaOmnibaseControl::StepCommand()
 {
+    static int cycle = 0;
     using VectorType = omni_kinematics::Robot::VectorType;
     using Twist      = omni_kinematics::Twist;
 
@@ -190,6 +194,7 @@ void MekaOmnibaseControl::StepCommand()
     twist.td = 0.5; //command_.xd_des(2);
     ctrl_.saturateTwist(twist, 1.0 / RT_TASK_FREQUENCY, true);
 
+    /*
     std::cerr << "betas: "  << robot_.beta()[0] << ", "
                             << robot_.beta()[1] << ", "
                             << robot_.beta()[2] << ", "
@@ -200,21 +205,30 @@ void MekaOmnibaseControl::StepCommand()
                             << robot_.phid()[2] << ", "
                             << robot_.phid()[3]
               << std::endl; 
+    */
 
-    if (command_.ctrl_mode() == MEKA_OMNIBASE_CONTROL_ON) {
+    if (command_.ctrl_mode() == MEKA_OMNIBASE_CONTROL_CC) {
+        //m3rt::M3_INFO("betad[0]: %f", command_.betad_des(0));
+        if (!(cycle++ % 100)) {
+            std::cerr <<"des betad[0]: " << command_.betad_des(0) << std::endl;
+        }
+
+        
+    } else if (command_.ctrl_mode() == MEKA_OMNIBASE_CONTROL_ON) {
         ctrl_.calcCommand(twist, betad, phid);
 
+        /*
         std::cerr << "des betad: "
                   << betad[0] << " " << betad[1] << " " << betad[2] << " " << betad[3]
                   << std::endl;
         std::cerr << "des phid: "
                   << phid[0] << " " << phid[1] << " " << phid[2] << " " << phid[3]
                   << std::endl;
-
+        */
         M3JointArrayCommand* cmd = (M3JointArrayCommand*)m3joints_->GetCommand();
         for (int i = 0; i < NUM_CASTERS; ++i) {
 
-            if (last_ctrl_mode_ != MEKA_OMNIBASE_CONTROL_ON) {
+            if (last_ctrl_mode_ == MEKA_OMNIBASE_CONTROL_OFF) {
                 casters_[i].reset();
             }
 
@@ -224,7 +238,7 @@ void MekaOmnibaseControl::StepCommand()
                 betad[i] = 0.0;
                 casters_[i].stepCommand(betad[i], phid[i]);
                 casters_[i].tq(tq0, tq1);
-                std::cerr << "tq0, tq1: " << tq0 << " " << tq1 << std::endl;
+                //std::cerr << "tq0, tq1: " << tq0 << " " << tq1 << std::endl;
                 tq0 = CLAMP(tq0, -400, 400);
                 tq1 = CLAMP(tq1, -400, 400);
                 //tq0 = 0;

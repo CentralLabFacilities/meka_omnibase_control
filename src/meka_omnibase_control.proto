@@ -4,6 +4,7 @@ import "component_base.proto";
 enum MEKA_OMNIBASE_CONTROL_MODE {
     MEKA_OMNIBASE_CONTROL_OFF = 0; // Everything off.
     MEKA_OMNIBASE_CONTROL_ON  = 1; // Robot-space velocity control.
+    MEKA_OMNIBASE_CONTROL_CC  = 2; // Caster calibration.
 }
 
 message MekaOmnibaseControlStatus
@@ -36,5 +37,8 @@ message MekaOmnibaseControlCommand
     optional MEKA_OMNIBASE_CONTROL_MODE ctrl_mode   = 1;
 
     repeated double                     xd_des      = 2;    // (xd,yd,td)
+    
+    repeated double                     betad_des   = 3;    // Caster 
+    repeated double                     phid_des    = 4;    // calibration mode
 }
 
