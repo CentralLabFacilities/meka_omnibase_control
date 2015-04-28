@@ -53,11 +53,11 @@ void CasterControl::stepCommand(double qd_des_0, double qd_des_1)
         tq_[i] = pid_[i].Step(ed_[i],
                               edd_[i],
                               ed_des[i],
-                              kp_,
-                              ki_,
-                              kd_,
-                              ki_limit_,
-                              ki_range_);
+                              kp(),
+                              ki(),
+                              kd(),
+                              ki_limit(),
+                              ki_range());
     }
 }
 

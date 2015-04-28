@@ -11,6 +11,7 @@ bool MekaOmnibaseControl::ReadConfig(const char* filename)
     m3joints_name_ = doc["joint_array_component"].as<std::string>();
     m3pwr_name_    = doc["pwr_component"].as<std::string>();
 
+    // NOTE: Cartesian limits currently ignored.
     param_.set_xd_max( doc["param"]["xd_max"].as<double>());
     param_.set_xdd_max(doc["param"]["xdd_max"].as<double>());
     param_.set_td_max( doc["param"]["td_max"].as<double>());
@@ -53,6 +54,11 @@ bool MekaOmnibaseControl::ReadConfig(const char* filename)
     for (int i = 0; i < NUM_CASTERS; ++i) {
         casters_[i].readConfig(doc);
     }
+    param_.set_k_ed_p(casters_[0].kp());
+    param_.set_k_ed_i(casters_[0].ki());
+    param_.set_k_ed_d(casters_[0].kd());
+    param_.set_k_ed_i_limit(casters_[0].ki_range());
+    param_.set_k_ed_i_range(casters_[0].ki_limit());
 
     robot_.calcConstraints();
 
@@ -88,11 +94,7 @@ void MekaOmnibaseControl::Startup()
    }
 
    // NOTE: Cartesian limits currently ignored.
-   param_.set_xd_max(0.0);
-   param_.set_xdd_max(0.0);
-   param_.set_td_max(0.0);
-   param_.set_tdd_max(0.0);
-
+   
    command_.set_ctrl_mode(MEKA_OMNIBASE_CONTROL_OFF);
    last_ctrl_mode_ = MEKA_OMNIBASE_CONTROL_OFF;
 
@@ -217,6 +219,13 @@ void MekaOmnibaseControl::StepCommand()
 
         M3JointArrayCommand* cmd = (M3JointArrayCommand*)m3joints_->GetCommand();
         for (int i = 0; i < NUM_CASTERS; ++i) {
+
+            // Update PID parameters (they might have changed).
+            casters_[i].pidParams(param_.k_ed_p(),
+                                  param_.k_ed_i(),
+                                  param_.k_ed_d(),
+                                  param_.k_ed_i_limit(),
+                                  param_.k_ed_i_range());
 
             if (last_ctrl_mode_ != MEKA_OMNIBASE_CONTROL_ON) {
                 casters_[i].reset();

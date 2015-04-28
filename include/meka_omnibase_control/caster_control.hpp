@@ -64,6 +64,25 @@ namespace meka_omnibase_control
         /// \brief Read parameters from a YAML node (ns, nw, nt and PID params).
         void readConfig(YAML::Node& doc);
 
+        double kp() const { return kp_; }
+        double ki() const { return ki_; }
+        double kd() const { return kd_; }
+        double ki_limit() const { return ki_limit_; }
+        double ki_range() const { return ki_range_; }
+
+        void pidParams(double kp,
+                       double ki,
+                       double kd,
+                       double ki_limit,
+                       double ki_range)
+        {
+            kp_ = kp;
+            ki_ = ki;
+            kd_ = kd;
+            ki_limit_ = ki_limit;
+            ki_range_ = ki_range;
+        }
+
         /// \brief Reset the accumulated PID state.
         void reset();
 
