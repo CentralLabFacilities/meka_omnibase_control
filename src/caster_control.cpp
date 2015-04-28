@@ -33,11 +33,10 @@ void CasterControl::stepStatus(double e[2], double ed[2], double edd[2])
     std::copy(&ed[0],  &ed[2],  ed_);
     std::copy(&edd[0], &edd[2], edd_);
 
-    q_[0]  = e_[0]  / ns_;
-    q_[1]  = e_[0]  / (ns_ * nw_) - ed_[1] / (nt_ * nw_);
-    qd_[0] = ed_[0] / ns_;
-    qd_[1] = ed_[0] / (ns_ * nw_) - ed_[1] / (nt_ * nw_);
-    // TODO: qdd ?
+    q_[0]  = -e_[0]  / ns_;
+    q_[1]  =  e_[0]  / (ns_ * nw_) - ed_[1] / (nt_ * nw_);
+    qd_[0] = -ed_[0] / ns_;
+    qd_[1] =  ed_[0] / (ns_ * nw_) - ed_[1] / (nt_ * nw_);
 }
 
 void CasterControl::stepCommand(double qd_des_0, double qd_des_1)
@@ -57,5 +56,9 @@ void CasterControl::stepCommand(double qd_des_0, double qd_des_1)
                            ki_limit_,
                            ki_range_);
     }
+
+    //std::cout << "err:   " << ed_[1] - ed_des[1] << std::endl;
+    //std::cout << "tq[1]: " << tq_[1]    << std::endl;
+
 }
 
