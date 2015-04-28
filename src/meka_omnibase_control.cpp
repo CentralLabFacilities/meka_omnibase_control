@@ -190,6 +190,7 @@ void MekaOmnibaseControl::StepCommand()
     twist.td = 0.5; //command_.xd_des(2);
     ctrl_.saturateTwist(twist, 1.0 / RT_TASK_FREQUENCY, true);
 
+<<<<<<< HEAD
     std::cerr << "betas: "  << robot_.beta()[0] << ", "
                             << robot_.beta()[1] << ", "
                             << robot_.beta()[2] << ", "

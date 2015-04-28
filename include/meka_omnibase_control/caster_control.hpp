@@ -52,7 +52,7 @@ namespace meka_omnibase_control
         double qd_[2];  // Current joint velocities.
         double tq_[2];  // Current torque output.
 
-        m3::M3PID pid_;
+        std::vector<m3::M3PID> pid_;
 
     public:
         /// \brief Constructor.

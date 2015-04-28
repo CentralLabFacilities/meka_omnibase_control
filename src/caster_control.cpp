@@ -3,7 +3,8 @@
 
 using namespace meka_omnibase_control;
 
-CasterControl::CasterControl()
+CasterControl::CasterControl():
+    pid_(2)
 {
     std::fill(&tq_[0], &tq_[2], 0.0);
 }
@@ -24,7 +25,8 @@ void CasterControl::readConfig(YAML::Node& doc)
 
 void CasterControl::reset()
 {
-    pid_.ResetIntegrator();
+    pid_[0].ResetIntegrator();
+    pid_[1].ResetIntegrator();
 }
 
 void CasterControl::stepStatus(double e[2], double ed[2], double edd[2])
@@ -47,14 +49,14 @@ void CasterControl::stepCommand(double qd_des_0, double qd_des_1)
     ed_des[1] = nt_ * qd_des_0 - nt_ * nw_ * qd_des_1;
 
     for (int i = 0; i < 2; ++i) {
-        tq_[i] = pid_.Step(ed_[i],
-                           edd_[i],
-                           ed_des[i],
-                           kp_,
-                           ki_,
-                           kd_,
-                           ki_limit_,
-                           ki_range_);
+        tq_[i] = pid_[i].Step(ed_[i],
+                              edd_[i],
+                              ed_des[i],
+                              kp_,
+                              ki_,
+                              kd_,
+                              ki_limit_,
+                              ki_range_);
     }
 
     //std::cout << "err:   " << ed_[1] - ed_des[1] << std::endl;
