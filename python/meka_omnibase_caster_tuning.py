@@ -167,13 +167,13 @@ class M3Proc:
         vmax =  6.0
 
         try:
-            self.mode=[0]
-            self.betad_=[0.0]*4
-            self.phid_=[0.0]*4
-            self.xd_ = [0.0]
-            self.yd_ = [0.0]
-            self.td_ = [0.0]
-            self.cr_ = [0.0]*4
+            self.mode   = [0]
+            self.betad_ = [0.0]*4
+            self.phid_  = [0.0]*4
+            self.xd_    = [0.0]
+            self.yd_    = [0.0]
+            self.td_    = [0.0]
+            self.tqr_   = [0.0]*4
 
             self.do_scope_torque=False
             self.do_scope_torquedot=False
@@ -191,7 +191,7 @@ class M3Proc:
             self.gui.add('M3GuiSliders','Phi dot',
                     (self,'phid_'),range(0,4),[vmin,vmax]*4,m3g.M3GuiWrite)
             self.gui.add('M3GuiSliders','Caster Ratio',
-                    (self,'phid_'),range(0,4),[0.0,1.0]*4,m3g.M3GuiWrite)
+                    (self,'tqr_'),range(0,4),[0.0,1.0]*4,m3g.M3GuiWrite)
             self.gui.add('M3GuiSliders','xdot', 
                     (self,'xd_'),[0],[-1.0,1.0],m3g.M3GuiWrite)
             self.gui.add('M3GuiSliders','ydot', 
@@ -220,10 +220,12 @@ class M3Proc:
             self.omni.set_mode_caster()
             for i in range(0,4):
                 self.omni.set_caster_vel(i, self.betad_[i], self.phid_[i])
-                self.omni.set_caster_tqr(i, self.cr_[i])
+                self.omni.set_caster_tqr(i, self.tqr_[i])
         elif (self.mode[0] == 2): # Normal
             self.omni.set_mode_on()
             self.omni.set_desired_twist(self.xd_[0], self.yd_[0], self.td_[0])
+            for i in range(0,4):
+                self.omni.set_caster_tqr(i, self.tqr_[i])
         else:
             self.omni.set_mode_off()
 
