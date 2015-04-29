@@ -191,9 +191,9 @@ void MekaOmnibaseControl::StepCommand()
     static VectorType betad(NUM_CASTERS, 0.0);
     static VectorType phid(NUM_CASTERS, 0.0);
 
-    twist.xd = 0.0; //command_.xd_des(0);
+    twist.xd = 0.1; //command_.xd_des(0);
     twist.yd = 0.0; //command_.xd_des(1);
-    twist.td = 0.5; //command_.xd_des(2);
+    twist.td = 0.0; //command_.xd_des(2);
     ctrl_.saturateTwist(twist, 1.0 / RT_TASK_FREQUENCY, true);
 
     /*
@@ -211,13 +211,8 @@ void MekaOmnibaseControl::StepCommand()
 
     if (command_.ctrl_mode() != MEKA_OMNIBASE_CONTROL_OFF) {
 
-
         if (command_.ctrl_mode() == MEKA_OMNIBASE_CONTROL_CC) {
             // Caster tuning mode, copy the incoming command.
-            if (!(cycle++ % 100)) {
-                std::cerr <<"des betad[0]: " << command_.betad_des(0) << std::endl;
-            }
-
             for (int i = 0; i < NUM_CASTERS; ++i) {
                 betad[i] = command_.betad_des(i);
                 phid[i] = command_.phid_des(i);
@@ -230,7 +225,6 @@ void MekaOmnibaseControl::StepCommand()
 
         M3JointArrayCommand* cmd = (M3JointArrayCommand*)m3joints_->GetCommand();
         for (int i = 0; i < NUM_CASTERS; ++i) {
-
             // Update PID parameters (they might have changed).
             casters_[i].pidParams(param_.k_ed_p(),
                                   param_.k_ed_i(),
@@ -244,14 +238,16 @@ void MekaOmnibaseControl::StepCommand()
 
             double tq0, tq1;
 
-            if (i == 0) {
+            {
                 casters_[i].stepCommand(betad[i], phid[i]);
                 casters_[i].tq(tq0, tq1);
-                //std::cerr << "tq0, tq1: " << tq0 << " " << tq1 << std::endl;
-                tq0 = CLAMP(tq0, -400, 400);
-                tq1 = CLAMP(tq1, -400, 400);
-            } else {
-                tq0 = tq1 = 0.0;
+                tq0 = CLAMP(tq0, -4000, 4000);
+                tq1 = CLAMP(tq1, -4000, 4000);
+                if (!(cycle++ % 100)) {
+                    std::cerr <<"des betad[0]: " << command_.betad_des(0) << std::endl;
+                    std::cerr <<"des phid[0]: " << command_.phid_des(0) << std::endl;
+                    std::cerr << "tq0, tq1: " << tq0 << " " << tq1 << std::endl;
+                }
             }
 
             m3joints_->GetJoint(i*2  )->DisablePwmRamp();   // Make sure this is necessary

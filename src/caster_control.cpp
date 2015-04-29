@@ -11,15 +11,15 @@ CasterControl::CasterControl():
 
 void CasterControl::readConfig(YAML::Node& doc)
 {
-    ns_       = doc["param"]["casters"]["Ns"].as<double>();
-    nt_       = doc["param"]["casters"]["Nt"].as<double>();
-    nw_       = doc["param"]["casters"]["Nw"].as<double>();
+    ns_       = doc["param"]["Ns"].as<double>();
+    nt_       = doc["param"]["Nt"].as<double>();
+    nw_       = doc["param"]["Nw"].as<double>();
 
-    kp_       = doc["param"]["casters"]["k_p"].as<double>();
-    kd_       = doc["param"]["casters"]["k_d"].as<double>();
-    ki_       = doc["param"]["casters"]["k_i"].as<double>();
-    ki_range_ = doc["param"]["casters"]["k_i_range"].as<double>();
-    ki_limit_ = doc["param"]["casters"]["k_i_limit"].as<double>();
+    kp_       = doc["param"]["k_ed_p"].as<double>();
+    kd_       = doc["param"]["k_ed_d"].as<double>();
+    ki_       = doc["param"]["k_ed_i"].as<double>();
+    ki_range_ = doc["param"]["k_ed_i_range"].as<double>();
+    ki_limit_ = doc["param"]["k_ed_i_limit"].as<double>();
 
 }
 
