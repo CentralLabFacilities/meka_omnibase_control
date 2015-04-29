@@ -15,6 +15,10 @@ class MekaOmnibaseControl(M3Component):
 
         for i in range(3):
             self.command.xd_des.append(0)
+        for i in range(4):
+            self.command.betad_des.append(0)
+            self.command.phid_des.append(0)
+
         self.command.ctrl_mode = mob.MEKA_OMNIBASE_CONTROL_OFF
 
     def get_current_twist(self):
@@ -31,8 +35,16 @@ class MekaOmnibaseControl(M3Component):
         self.command.ctrl_mode = mob.MEKA_OMNIBASE_CONTROL_ON
     def set_mode_off(self):
         self.command.ctrl_mode = mob.MEKA_OMNIBASE_CONTROL_OFF
+    def set_mode_caster(self):
+        self.command.ctrl_mode = mob.MEKA_OMNIBASE_CONTROL_CC
 
     def set_desired_twist(self, xd, yd, td):
         self.command.xd_des[0] = xd
         self.command.xd_des[1] = yd
         self.command.xd_des[2] = td
+
+    def set_caster_vel(self, i, betad, phid):
+        if (i > 3):
+            return
+        self.command.betad_des[i] = betad
+        self.command.phid_des[i]  = phid

@@ -124,7 +124,7 @@ class OmniBridge:
 
         self.pub_odom.publish(odom)
 
-	    # Diagnostics
+        # Diagnostics
         self.diag_i = self.diag_i + 1
         if (self.diag_i > 5):
             rospy.logdebug("alpha: " + str(self.omni.status.alpha))
