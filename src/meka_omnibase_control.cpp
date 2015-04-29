@@ -271,7 +271,10 @@ void MekaOmnibaseControl::StepCommand()
 
     } else {
         for (int i = 0; i < NUM_CASTERS*2; ++i) {
+            M3JointArrayCommand* cmd = (M3JointArrayCommand*)m3joints_->GetCommand();
             m3joints_->GetJoint(i)->SetDesiredControlMode(JOINT_MODE_OFF);
+            cmd->set_tq_desired(i*2,   0.0);
+            cmd->set_tq_desired(i*2+1, 0.0);
         }
     }
 
