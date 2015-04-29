@@ -46,5 +46,6 @@ message MekaOmnibaseControlCommand
     
     repeated double                     betad_des   = 3;    // Caster 
     repeated double                     phid_des    = 4;    // calibration mode
+    repeated double                     tqr         = 5;    // torque ratio.
 }
 

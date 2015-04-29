@@ -170,6 +170,11 @@ class M3Proc:
             self.mode=[0]
             self.betad_=[0.0]*4
             self.phid_=[0.0]*4
+            self.xd_ = [0.0]
+            self.yd_ = [0.0]
+            self.td_ = [0.0]
+            self.cr_ = [0.0]*4
+
             self.do_scope_torque=False
             self.do_scope_torquedot=False
             self.do_scope_theta=False
@@ -180,11 +185,19 @@ class M3Proc:
             self.gui.add('M3GuiTree',   'Status',    (self,'status_dict'),[],[],m3g.M3GuiRead,column=2)
             self.gui.add('M3GuiTree',   'Param',   (self,'param_dict'),[],[],m3g.M3GuiWrite,column=3)
             self.gui.add('M3GuiModes',  'Mode',
-                    (self,'mode'),[0],[['Off','On'],1],m3g.M3GuiWrite)
+                    (self,'mode'),[0],[['Off','CC', 'Normal'],1],m3g.M3GuiWrite)
             self.gui.add('M3GuiSliders','Beta dot', 
                     (self,'betad_'),range(0,4),[vmin,vmax]*4,m3g.M3GuiWrite)
             self.gui.add('M3GuiSliders','Phi dot',
                     (self,'phid_'),range(0,4),[vmin,vmax]*4,m3g.M3GuiWrite)
+            self.gui.add('M3GuiSliders','Caster Ratio',
+                    (self,'phid_'),range(0,4),[0.0,1.0]*4,m3g.M3GuiWrite)
+            self.gui.add('M3GuiSliders','xdot', 
+                    (self,'xd_'),[0],[-1.0,1.0],m3g.M3GuiWrite)
+            self.gui.add('M3GuiSliders','ydot', 
+                    (self,'yd_'),[0],[-1.0,1.0],m3g.M3GuiWrite)
+            self.gui.add('M3GuiSliders','tdot', 
+                    (self,'td_'),[0],[-1.0,1.0],m3g.M3GuiWrite)
 
             self.gui.add('M3GuiToggle', 'ScopeTorque',      (self,'do_scope_torque'),[],[['On','Off']],m3g.M3GuiWrite)
             self.gui.add('M3GuiToggle', 'ScopeTorqueDot',      (self,'do_scope_torquedot'),[],[['On','Off']],m3g.M3GuiWrite)
@@ -203,10 +216,14 @@ class M3Proc:
         idx=0
         current=0
 
-        if (self.mode[0] == 1):
+        if (self.mode[0] == 1): # CC
             self.omni.set_mode_caster()
             for i in range(0,4):
                 self.omni.set_caster_vel(i, self.betad_[i], self.phid_[i])
+                self.omni.set_caster_tqr(i, self.cr_[i])
+        elif (self.mode[0] == 2): # Normal
+            self.omni.set_mode_on()
+            self.omni.set_desired_twist(self.xd_[0], self.yd_[0], self.td_[0])
         else:
             self.omni.set_mode_off()
 

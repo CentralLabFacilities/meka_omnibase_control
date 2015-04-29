@@ -20,10 +20,10 @@ param:
     phid_ratio: [-1.0, -1.0, -1.0, -1.0] 
 
     # TODO: Real values!
-    betad_max: [1.0, 1.0, 1.0, 1.0]
-    betadd_max: [1.0, 1.0, 1.0, 1.0]
-    phid_max: [1.0, 1.0, 1.0, 1.0]
-    phidd_max: [1.0, 1.0, 1.0, 1.0]
+    betad_max: [12.0, 12.0, 12.0, 12.0]
+    betadd_max: [6.0, 6.0, 6.0, 6.0]
+    phid_max: [6.0, 6.0, 6.0, 6.0]
+    phidd_max: [6.0, 6.0, 6.0, 6.0]
 
     #casters:
     Ns: 4.0000 # 96/24

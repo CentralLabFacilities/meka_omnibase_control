@@ -15,10 +15,11 @@ class MekaOmnibaseControl(M3Component):
         self.read_config()
 
         for i in range(3):
-            self.command.xd_des.append(0)
+            self.command.xd_des.append(0.0)
         for i in range(4):
-            self.command.betad_des.append(0)
-            self.command.phid_des.append(0)
+            self.command.betad_des.append(0.0)
+            self.command.phid_des.append(0.0)
+            self.command.tqr.append(0.0)
 
         self.command.ctrl_mode = mob.MEKA_OMNIBASE_CONTROL_OFF
 
@@ -43,6 +44,9 @@ class MekaOmnibaseControl(M3Component):
         self.command.xd_des[0] = xd
         self.command.xd_des[1] = yd
         self.command.xd_des[2] = td
+
+    def set_caster_tqr(self, i, tqr):
+        self.command.tqr[i] = tqr 
 
     def set_caster_vel(self, i, betad, phid):
         if (i > 3):
