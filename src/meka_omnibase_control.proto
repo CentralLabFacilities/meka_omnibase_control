@@ -36,6 +36,8 @@ message MekaOmnibaseControlParam
     optional double                     k_ed_d       = 7;   // two per wheel.
     optional double                     k_ed_i_limit = 8;   // All wheels have
     optional double                     k_ed_i_range = 9;   // the same values.  
+
+    repeated double                     beta_offset  = 10;  
 }
 
 message MekaOmnibaseControlCommand

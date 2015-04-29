@@ -95,6 +95,8 @@ void MekaOmnibaseControl::Startup()
        status_.add_l(robot_.l()[i]);
 
        status_.add_calib(false);
+
+       param_.add_beta_offset(beta_offset_[i]);
    }
 
    // NOTE: Cartesian limits currently ignored.
@@ -156,9 +158,11 @@ void MekaOmnibaseControl::StepStatus()
         casters_[i].qd(betad[i], phid[i]);
 
         // Geometrical transforms to allow reversed directions and sensor
-        // offsets:
+        // offsets.
+        // NOTE: The beta_offset_ member is only for initial values, the rest is
+        // updated with the param struct.
         beta[i]  = beta_ratio_[i] * omni_kinematics::normalizedAngle(
-                                        beta[i] + beta_offset_[i]);
+                                        beta[i] + param_.beta_offset(i));
         betad[i] = beta_ratio_[i] * betad[i];
         phid[i]  = phid_ratio_[i] * phid[i];
 

@@ -12,6 +12,7 @@ class MekaOmnibaseControl(M3Component):
         self.command = mob.MekaOmnibaseControlCommand()
         self.status  = mob.MekaOmnibaseControlStatus()
         self.param   = mob.MekaOmnibaseControlParam()
+
         self.read_config()
 
         for i in range(3):

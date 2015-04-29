@@ -26,6 +26,7 @@ namespace meka_omnibase_control
 
         CasterControl                           casters_[NUM_CASTERS];
 
+        // NOTE: beta offsets only used at init, see param_.
         double                                  beta_offset_[NUM_CASTERS];
         double                                  beta_ratio_[NUM_CASTERS];
         double                                  phid_ratio_[NUM_CASTERS];
