@@ -41,8 +41,8 @@ class OmniBridge:
         self.pub_odom    = rospy.Publisher("odom", Odometry, queue_size=1)
         self.tf_bc       = tf.TransformBroadcaster()
 
-        self.max_lin  = 0.00 # TODO: Param.
-        self.max_ang  = 0.20 # TODO: Param.
+        self.max_lin  = 0.30 # TODO: Param.
+        self.max_ang  = 1.00 # TODO: Param.
         self.cmd_vel  = Twist()
         self.last_cmd = rospy.Time(0)
         self.timeout  = rospy.Duration(0.25)
@@ -89,12 +89,17 @@ class OmniBridge:
             # Too much time passed since last command, zero it.
             self.cmd_vel = Twist()
 
-        xd = self.cmd_vel.linear.x
-        yd = self.cmd_vel.linear.y
-        td = self.cmd_vel.angular.z
+        # TODO: Geometry is completely flipped:
+        xd = -self.cmd_vel.linear.x
+        yd = -self.cmd_vel.linear.y
+        td = -self.cmd_vel.angular.z
+        
+        #print "xd,yd,td:", xd,yd,td
 
         self.omni.set_mode_on()
         self.omni.set_desired_twist(xd,yd,td)
+        for i in range(0,4):
+            self.omni.set_caster_tqr(i, 1.0)
         self.proxy.step()
 
         # Odometry

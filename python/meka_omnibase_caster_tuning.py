@@ -193,9 +193,9 @@ class M3Proc:
             self.gui.add('M3GuiSliders','Caster Ratio',
                     (self,'tqr_'),range(0,4),[0.0,1.0]*4,m3g.M3GuiWrite)
             self.gui.add('M3GuiSliders','xdot', 
-                    (self,'xd_'),[0],[-1.0,1.0],m3g.M3GuiWrite)
+                    (self,'xd_'),[0],[-0.3,0.3],m3g.M3GuiWrite)
             self.gui.add('M3GuiSliders','ydot', 
-                    (self,'yd_'),[0],[-1.0,1.0],m3g.M3GuiWrite)
+                    (self,'yd_'),[0],[-0.3,0.3],m3g.M3GuiWrite)
             self.gui.add('M3GuiSliders','tdot', 
                     (self,'td_'),[0],[-1.0,1.0],m3g.M3GuiWrite)
 

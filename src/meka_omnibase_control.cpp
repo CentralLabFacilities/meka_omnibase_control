@@ -229,10 +229,11 @@ void MekaOmnibaseControl::StepCommand()
         } else if (command_.ctrl_mode() == MEKA_OMNIBASE_CONTROL_ON) {
             // Standard local velocity mode.
             ctrl_.calcCommand(twist, betad, phid);
-            for (int i = 0; i < NUM_CASTERS; ++i) {
-                betad[i] *= beta_ratio_[i];
-                phid[i]  *= phid_ratio_[i];
-            }
+        }
+
+        for (int i = 0; i < NUM_CASTERS; ++i) {
+            betad[i] *= beta_ratio_[i];
+            //phid[i]  *= phid_ratio_[i];
         }
 
         M3JointArrayCommand* cmd = (M3JointArrayCommand*)m3joints_->GetCommand();
