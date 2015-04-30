@@ -24,7 +24,8 @@ param:
     phid_max: [6.0, 6.0, 6.0, 6.0]
     phidd_max: [6.0, 6.0, 6.0, 6.0]
 
-    tq_max: 1200.0
+    tq_max:     2000.0
+    tq_sum_max: 4000.0 
 
     #casters:
     Ns: 4.0000 # 96/24

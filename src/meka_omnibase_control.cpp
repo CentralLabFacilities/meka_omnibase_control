@@ -55,6 +55,8 @@ bool MekaOmnibaseControl::ReadConfig(const char* filename)
         
         double tq_max = doc["param"]["tq_max"].as<double>();
         param_.set_tq_max(tq_max);
+        double tq_sum_max = doc["param"]["tq_sum_max"].as<double>();
+        param_.set_tq_sum_max(tq_sum_max);
 
         for (int i = 0; i < NUM_CASTERS; ++i) {
             casters_[i].readConfig(doc);
@@ -210,6 +212,8 @@ void MekaOmnibaseControl::StepCommand()
     static Twist twist;
     static VectorType betad(NUM_CASTERS, 0.0);
     static VectorType phid(NUM_CASTERS, 0.0);
+    static VectorType tq(NUM_CASTERS*2, 0.0);
+
 
     twist.xd = command_.xd_des(0);
     twist.yd = command_.xd_des(1);
@@ -249,24 +253,31 @@ void MekaOmnibaseControl::StepCommand()
                 casters_[i].reset();
             }
 
-            double tq[2];
-
             casters_[i].stepCommand(betad[i], phid[i]);
-            casters_[i].tq(tq[0], tq[1]);
-            for (int j = 0; j < 2; ++j) {
+            casters_[i].tq(tq[2*i], tq[2*i+1]);
+            for (int j = 2*i; j < (2*i+1); ++j) {
                 tq[j] *= command_.tqr(i);
                 tq[j] = CLAMP(tq[j], -param_.tq_max(), param_.tq_max());
             }
+        }
 
-            m3joints_->GetJoint(i*2  )->DisablePwmRamp();   // Make sure this is necessary
-            m3joints_->GetJoint(i*2+1)->DisablePwmRamp();
-            cmd->set_ctrl_mode(i*2,    JOINT_ARRAY_MODE_TORQUE);
-            cmd->set_ctrl_mode(i*2+1,  JOINT_ARRAY_MODE_TORQUE);
-            cmd->set_tq_desired(i*2,   tq[0]);
-            cmd->set_tq_desired(i*2+1, tq[1]);
-            if (!(cycle % 100)) {
-                std::cerr << "tq0, tq1: " << tq[0] << ", " << tq[1] << std::endl;
+        // Check the total torque sum and normalize to avoid reaching current
+        // limit.
+        double tq_sum = 0.0;
+        for (int j = 0; j < NUM_CASTERS*2; ++j) {
+            tq_sum += fabs(tq[j]);
+        }
+        if (tq_sum > param_.tq_sum_max()) {
+            double ratio = param_.tq_sum_max() / tq_sum;
+            for (int j = 0; j < NUM_CASTERS*2; ++j) {
+                tq[j] *= ratio;
             }
+        }
+
+        for (int i = 0; i < NUM_CASTERS*2; ++i) {
+            m3joints_->GetJoint(i)->DisablePwmRamp();   // Make sure this is necessary
+            cmd->set_ctrl_mode(i, JOINT_ARRAY_MODE_TORQUE);
+            cmd->set_tq_desired(i, tq[i]);
         }
 
 #ifdef DEBUG_OUTPUT

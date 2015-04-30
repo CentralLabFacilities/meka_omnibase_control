@@ -40,8 +40,10 @@ message MekaOmnibaseControlParam
     // Beta offset added to the reading of the caster orientation:
     repeated double                     beta_offset  = 10;  
 
-    // Max (absolute) torque in mNm, applies to both motors:
+    // Max (absolute) torque in mNm, applies to each motor:
     optional double                     tq_max       = 11;
+    // Max (absolute) torque sum for all 8 motors:
+    optional double                     tq_sum_max   = 12;
 }
 
 message MekaOmnibaseControlCommand
