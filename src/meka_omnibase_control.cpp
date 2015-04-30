@@ -4,65 +4,80 @@ using namespace meka_omnibase_control;
 
 bool MekaOmnibaseControl::ReadConfig(const char* filename)
 {
-    if (!M3Component::ReadConfig(filename)) {
-        return false;
-    }
+    try {
+        if (!M3Component::ReadConfig(filename)) {
+            return false;
+        }
 
-    m3joints_name_ = doc["joint_array_component"].as<std::string>();
-    m3pwr_name_    = doc["pwr_component"].as<std::string>();
+        m3joints_name_ = doc["joint_array_component"].as<std::string>();
+        m3pwr_name_    = doc["pwr_component"].as<std::string>();
 
-    // NOTE: Cartesian limits currently ignored.
-    param_.set_xd_max( doc["param"]["xd_max"].as<double>());
-    param_.set_xdd_max(doc["param"]["xdd_max"].as<double>());
-    param_.set_td_max( doc["param"]["td_max"].as<double>());
-    param_.set_tdd_max(doc["param"]["tdd_max"].as<double>());
+        // NOTE: Cartesian limits currently ignored.
+        param_.set_xd_max( doc["param"]["xd_max"].as<double>());
+        param_.set_xdd_max(doc["param"]["xdd_max"].as<double>());
+        param_.set_td_max( doc["param"]["td_max"].as<double>());
+        param_.set_tdd_max(doc["param"]["tdd_max"].as<double>());
 
-    // Make sure there is at least 4 casters defined by looking at the lowest
-    // count of all parameters:
-    size_t n_casters = doc["param"]["alpha"].size();
-    n_casters = std::min(n_casters, doc["param"]["l"].size());
-    n_casters = std::min(n_casters, doc["param"]["d"].size());
-    n_casters = std::min(n_casters, doc["param"]["r"].size());
-    n_casters = std::min(n_casters, doc["param"]["beta_offset"].size());
-    if (n_casters != NUM_CASTERS) {
-        std::cerr << "MekaOmnibaseControl: Config does not define 4 casters."
+        // Make sure there is at least 4 casters defined by looking at the 
+        // lowest count of all parameters:
+        size_t n_casters = doc["param"]["alpha"].size();
+        n_casters = std::min(n_casters, doc["param"]["l"].size());
+        n_casters = std::min(n_casters, doc["param"]["d"].size());
+        n_casters = std::min(n_casters, doc["param"]["r"].size());
+        n_casters = std::min(n_casters, doc["param"]["beta_offset"].size());
+        if (n_casters != NUM_CASTERS) {
+            std::cerr << "MekaOmnibaseControl: Config does not define "
+                         "4 casters."
+                      << std::endl;
+            return false;
+        }
+
+        using VectorType = omni_kinematics::Robot::VectorType;
+        robot_.alpha() = doc["param"]["alpha"].as<VectorType>();
+        robot_.l() = doc["param"]["l"].as<VectorType>();
+        robot_.d() = doc["param"]["d"].as<VectorType>();
+        robot_.r() = doc["param"]["r"].as<VectorType>();
+
+        const std::vector<double>& beta_offset = 
+            doc["param"]["beta_offset"].as<VectorType>();
+        std::copy(beta_offset.begin(), beta_offset.end(), &beta_offset_[0]);
+        const std::vector<double>& beta_ratio = 
+            doc["param"]["beta_ratio"].as<VectorType>();
+        std::copy(beta_ratio.begin(), beta_ratio.end(), &beta_ratio_[0]);
+        const std::vector<double>& phid_ratio = 
+            doc["param"]["phid_ratio"].as<VectorType>();
+        std::copy(phid_ratio.begin(), phid_ratio.end(), &phid_ratio_[0]);
+
+        robot_.maxBetad() = doc["param"]["betad_max"].as<VectorType>();
+        robot_.maxBetadd() = doc["param"]["betadd_max"].as<VectorType>();
+        robot_.maxPhid() = doc["param"]["phid_max"].as<VectorType>();
+        robot_.maxPhidd() = doc["param"]["phidd_max"].as<VectorType>();
+        
+        double tq_max = doc["param"]["tq_max"].as<double>();
+        param_.set_tq_max(tq_max);
+
+        for (int i = 0; i < NUM_CASTERS; ++i) {
+            casters_[i].readConfig(doc);
+        }
+        param_.set_k_ed_p(casters_[0].kp());
+        param_.set_k_ed_i(casters_[0].ki());
+        param_.set_k_ed_d(casters_[0].kd());
+        param_.set_k_ed_i_limit(casters_[0].ki_range());
+        param_.set_k_ed_i_range(casters_[0].ki_limit());
+
+    } catch (std::exception e) {
+        std::cerr << "!!! meka_omnibase_control: failed to read config: "
+                  << std::endl
+                  << e.what()
                   << std::endl;
         return false;
     }
 
-    using VectorType = omni_kinematics::Robot::VectorType;
-    robot_.alpha() = doc["param"]["alpha"].as<VectorType>();
-    robot_.l() = doc["param"]["l"].as<VectorType>();
-    robot_.d() = doc["param"]["d"].as<VectorType>();
-    robot_.r() = doc["param"]["r"].as<VectorType>();
+        robot_.calcConstraints();
 
-    const std::vector<double>& beta_offset = 
-        doc["param"]["beta_offset"].as<VectorType>();
-    std::copy(beta_offset.begin(), beta_offset.end(), &beta_offset_[0]);
-    const std::vector<double>& beta_ratio = 
-        doc["param"]["beta_ratio"].as<VectorType>();
-    std::copy(beta_ratio.begin(), beta_ratio.end(), &beta_ratio_[0]);
-    const std::vector<double>& phid_ratio = 
-        doc["param"]["phid_ratio"].as<VectorType>();
-    std::copy(phid_ratio.begin(), phid_ratio.end(), &phid_ratio_[0]);
+        return true;
 
-    robot_.maxBetad() = doc["param"]["betad_max"].as<VectorType>();
-    robot_.maxBetadd() = doc["param"]["betadd_max"].as<VectorType>();
-    robot_.maxPhid() = doc["param"]["phid_max"].as<VectorType>();
-    robot_.maxPhidd() = doc["param"]["phidd_max"].as<VectorType>();
-    
-    for (int i = 0; i < NUM_CASTERS; ++i) {
-        casters_[i].readConfig(doc);
-    }
-    param_.set_k_ed_p(casters_[0].kp());
-    param_.set_k_ed_i(casters_[0].ki());
-    param_.set_k_ed_d(casters_[0].kd());
-    param_.set_k_ed_i_limit(casters_[0].ki_range());
-    param_.set_k_ed_i_range(casters_[0].ki_limit());
 
-    robot_.calcConstraints();
-
-    return true;
 }
 
 bool MekaOmnibaseControl::LinkDependentComponents()
@@ -220,34 +235,6 @@ void MekaOmnibaseControl::StepCommand()
             }
         }
 
-        if (!(cycle++ % 100)) {
-            std::cerr << "betas:     "  << robot_.beta()[0] << ", "
-                                        << robot_.beta()[1] << ", "
-                                        << robot_.beta()[2] << ", "
-                                        << robot_.beta()[3]
-                      << std::endl; 
-            std::cerr << "phids:     " << robot_.phid()[0] << ", "
-                                       << robot_.phid()[1] << ", "
-                                       << robot_.phid()[2] << ", "
-                                       << robot_.phid()[3]
-                      << std::endl; 
-
-            std::cerr << "des betad: "  << betad[0] << ", "
-                                        << betad[1] << ", "
-                                        << betad[2] << ", "
-                                        << betad[3]
-                      << std::endl; 
-            std::cerr << "des phid:  "  << phid[0] << ", "
-                                        << phid[1] << ", "
-                                        << phid[2] << ", "
-                                        << phid[3]
-                      << std::endl; 
-            std::cerr << "des xd:    "  << twist.xd << ", "
-                                        << twist.yd << ", "
-                                        << twist.td
-                      << std::endl;
-        }
-
         M3JointArrayCommand* cmd = (M3JointArrayCommand*)m3joints_->GetCommand();
         for (int i = 0; i < NUM_CASTERS; ++i) {
             // Update PID parameters (they might have changed).
@@ -261,21 +248,64 @@ void MekaOmnibaseControl::StepCommand()
                 casters_[i].reset();
             }
 
-            double tq0, tq1;
+            double tq[2];
 
             casters_[i].stepCommand(betad[i], phid[i]);
-            casters_[i].tq(tq0, tq1);
-            tq0 = command_.tqr(i) * CLAMP(tq0, -2000, 2000);
-            tq1 = command_.tqr(i) * CLAMP(tq1, -2000, 2000);
+            casters_[i].tq(tq[0], tq[1]);
+            for (int j = 0; j < 2; ++j) {
+                tq[j] *= command_.tqr(i);
+                tq[j] = CLAMP(tq[j], -param_.tq_max(), param_.tq_max());
+            }
 
             m3joints_->GetJoint(i*2  )->DisablePwmRamp();   // Make sure this is necessary
             m3joints_->GetJoint(i*2+1)->DisablePwmRamp();
             cmd->set_ctrl_mode(i*2,    JOINT_ARRAY_MODE_TORQUE);
             cmd->set_ctrl_mode(i*2+1,  JOINT_ARRAY_MODE_TORQUE);
-            cmd->set_tq_desired(i*2,   tq0);
-            cmd->set_tq_desired(i*2+1, tq1);
+            cmd->set_tq_desired(i*2,   tq[0]);
+            cmd->set_tq_desired(i*2+1, tq[1]);
+            if (!(cycle % 100)) {
+                std::cerr << "tq0, tq1: " << tq[0] << ", " << tq[1] << std::endl;
+            }
         }
-        
+
+#ifdef DEBUG_OUTPUT
+        if (!(cycle++ % 100)) {
+            std::cerr << "betas:     "  << robot_.beta()[0] << ", "
+                                        << robot_.beta()[1] << ", "
+                                        << robot_.beta()[2] << ", "
+                                        << robot_.beta()[3]
+                      << std::endl; 
+            std::cerr << "phids:     " << robot_.phid()[0] << ", "
+                                       << robot_.phid()[1] << ", "
+                                       << robot_.phid()[2] << ", "
+                                       << robot_.phid()[3]
+                      << std::endl; 
+            std::cerr << "des xd:    "  << twist.xd << ", "
+                                        << twist.yd << ", "
+                                        << twist.td
+                      << std::endl;
+            std::cerr << "des betad: "  << betad[0] << ", "
+                                        << betad[1] << ", "
+                                        << betad[2] << ", "
+                                        << betad[3]
+                      << std::endl; 
+            std::cerr << "des phid:  "  << phid[0] << ", "
+                                        << phid[1] << ", "
+                                        << phid[2] << ", "
+                                        << phid[3]
+                      << std::endl; 
+            std::cerr << "tq0:       "  << cmd->tq_desired(0) << ", "
+                                        << cmd->tq_desired(2) << ", "
+                                        << cmd->tq_desired(4) << ", "
+                                        << cmd->tq_desired(6)
+                      << std::endl; 
+            std::cerr << "tq1:       "  << cmd->tq_desired(1) << ", "
+                                        << cmd->tq_desired(3) << ", "
+                                        << cmd->tq_desired(5) << ", "
+                                        << cmd->tq_desired(7)
+                      << std::endl; 
+        }
+#endif
 
     } else {
         M3JointArrayCommand* cmd = (M3JointArrayCommand*)m3joints_->GetCommand();

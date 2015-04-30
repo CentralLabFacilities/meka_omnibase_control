@@ -89,6 +89,8 @@ ${ProtoFiles}
 ## Building
 set(CMAKE_CXX_FLAGS "-std=c++0x")
 
+add_definitions(-DDEBUG_OUTPUT)
+
 add_subdirectory(omni_kinematics)
 
 add_library(${LIBNAME} SHARED ${ALL_SRCS})
