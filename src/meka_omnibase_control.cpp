@@ -47,6 +47,16 @@ bool MekaOmnibaseControl::ReadConfig(const char* filename)
         const std::vector<double>& phid_ratio = 
             doc["param"]["phid_ratio"].as<VectorType>();
         std::copy(phid_ratio.begin(), phid_ratio.end(), &phid_ratio_[0]);
+        const std::vector<double>& des_betad_ratio = 
+            doc["param"]["des_betad_ratio"].as<VectorType>();
+        std::copy(des_betad_ratio.begin(), 
+                  des_betad_ratio.end(), 
+                  &des_betad_ratio_[0]);
+        const std::vector<double>& des_phid_ratio = 
+            doc["param"]["des_phid_ratio"].as<VectorType>();
+        std::copy(des_phid_ratio.begin(), 
+                  des_phid_ratio.end(), 
+                  &des_phid_ratio_[0]);
 
         robot_.maxBetad() = doc["param"]["betad_max"].as<VectorType>();
         robot_.maxBetadd() = doc["param"]["betadd_max"].as<VectorType>();
@@ -236,8 +246,8 @@ void MekaOmnibaseControl::StepCommand()
         }
 
         for (int i = 0; i < NUM_CASTERS; ++i) {
-            betad[i] *= beta_ratio_[i];
-            //phid[i]  *= phid_ratio_[i];
+            betad[i] *= des_betad_ratio_[i];
+            phid[i]  *= des_phid_ratio_[i];
         }
 
         M3JointArrayCommand* cmd = (M3JointArrayCommand*)m3joints_->GetCommand();

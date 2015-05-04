@@ -33,9 +33,6 @@ class OmniBridge:
 
         self.proxy.step()
 
-        # Omnibase init
-        # (TODO?)
-
         # ROS stuff
         self.sub_cmd_vel = rospy.Subscriber("cmd_vel", Twist, self.cmd_vel_cb, queue_size=1)
         self.pub_odom    = rospy.Publisher("odom", Odometry, queue_size=1)
@@ -89,10 +86,9 @@ class OmniBridge:
             # Too much time passed since last command, zero it.
             self.cmd_vel = Twist()
 
-        # TODO: Geometry is completely flipped:
-        xd = -self.cmd_vel.linear.x
-        yd = -self.cmd_vel.linear.y
-        td = -self.cmd_vel.angular.z
+        xd = self.cmd_vel.linear.x
+        yd = self.cmd_vel.linear.y
+        td = self.cmd_vel.angular.z
         
         #print "xd,yd,td:", xd,yd,td
 

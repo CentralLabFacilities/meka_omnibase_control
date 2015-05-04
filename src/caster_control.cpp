@@ -45,8 +45,8 @@ void CasterControl::stepCommand(double qd_des_0, double qd_des_1)
 {
     static double ed_des[2];
 
-    ed_des[0] = ns_ * qd_des_0;
-    ed_des[1] = nt_ * qd_des_0 - nt_ * nw_ * qd_des_1;
+    ed_des[0] = -ns_ * qd_des_0;
+    ed_des[1] = -nt_ * qd_des_0 - nt_ * nw_ * qd_des_1;
 
     for (int i = 0; i < 2; ++i) {
         tq_[i] = pid_[i].Step(ed_[i],

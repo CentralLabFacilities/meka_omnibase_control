@@ -14,9 +14,15 @@ param:
     l: [0.2678, 0.2678, 0.2678, 0.2678]
     d: [0.0200, 0.0200, 0.0200, 0.0200]
     r: [0.0550, 0.0550, 0.0550, 0.0550]
+    # Offsets and ratios applied before sending to model:
     beta_offset: [-1.8325,-1.57,-1.8325,-1.3090]
     beta_ratio: [-1.0, -1.0, -1.0, -1.0] 
     phid_ratio: [-1.0, -1.0, -1.0, -1.0] 
+    # Ratios applied before sending velocities to casters.
+    # NOTE: If caster control is valid, these should be the same as the other
+    # two ratios:
+    des_betad_ratio: [-1.0, -1.0, -1.0, -1.0] 
+    des_phid_ratio: [-1.0, -1.0, -1.0, -1.0] 
 
     # TODO: Real values!
     betad_max: [24.0, 24.0, 24.0, 24.0]
