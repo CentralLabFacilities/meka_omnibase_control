@@ -15,7 +15,7 @@ param:
     d: [0.0200, 0.0200, 0.0200, 0.0200]
     r: [0.0550, 0.0550, 0.0550, 0.0550]
     # Offsets and ratios applied before sending to model:
-    beta_offset: [-1.8325,-1.57,-1.8325,-1.3090]
+    beta_offset: [-1.8325,-1.3090,-1.8325,-1.3090]
     beta_ratio: [-1.0, -1.0, -1.0, -1.0] 
     phid_ratio: [-1.0, -1.0, -1.0, -1.0] 
     # Ratios applied before sending velocities to casters.
