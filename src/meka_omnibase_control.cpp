@@ -6,6 +6,9 @@ bool MekaOmnibaseControl::ReadConfig(const char* filename)
 {
     try {
         if (!M3Component::ReadConfig(filename)) {
+            std::cerr << "!! An error occured reading the configuration for the"
+                      << "M3Component base class."
+                      << std::endl;
             return false;
         }
 

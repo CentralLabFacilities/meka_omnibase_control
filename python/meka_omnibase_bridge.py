@@ -38,8 +38,8 @@ class OmniBridge:
         self.pub_odom    = rospy.Publisher("odom", Odometry, queue_size=1)
         self.tf_bc       = tf.TransformBroadcaster()
 
-        self.max_lin  = 0.30 # TODO: Param.
-        self.max_ang  = 1.00 # TODO: Param.
+        self.max_lin  = rospy.param("~max_lin_vel", 0.30)
+        self.max_ang  = rospy.param("~max_ang_vel", 1.00)
         self.cmd_vel  = Twist()
         self.last_cmd = rospy.Time(0)
         self.timeout  = rospy.Duration(0.25)
@@ -57,20 +57,6 @@ class OmniBridge:
     def cmd_vel_cb(self, msg):
         self.cmd_vel  = msg
         self.last_cmd = rospy.Time.now() 
-
-        xda = math.fabs(self.cmd_vel.linear.x)
-        yda = math.fabs(self.cmd_vel.linear.y)
-        tda = math.fabs(self.cmd_vel.angular.z)
-
-        if (xda > self.max_lin):
-            xds = self.cmd_vel.linear.x / xda
-            self.cmd_vel.linear.x = xds * self.max_lin
-        if (yda > self.max_lin):
-            yds = self.cmd_vel.linear.y / yda
-            self.cmd_vel.linear.y = yds * self.max_lin
-        if (tda > self.max_lin):
-            tds = self.cmd_vel.angular.z / tda
-            self.cmd_vel.angular.z = tds * self.max_lin
 
     def step(self):
         now      = rospy.Time.now()
@@ -90,7 +76,21 @@ class OmniBridge:
         yd = self.cmd_vel.linear.y
         td = self.cmd_vel.angular.z
         
-        #print "xd,yd,td:", xd,yd,td
+        xda = math.fabs(self.cmd_vel.linear.x)
+        yda = math.fabs(self.cmd_vel.linear.y)
+        tda = math.fabs(self.cmd_vel.angular.z)
+
+        # Saturate according to velocity limits:
+        if (xda > self.max_lin):
+            xds = self.cmd_vel.linear.x / xda
+            xd = xds * self.max_lin
+        if (yda > self.max_lin):
+            yds = self.cmd_vel.linear.y / yda
+            yd = yds * self.max_lin
+        if (tda > self.max_lin):
+            tds = self.cmd_vel.angular.z / tda
+            td = tds * self.max_lin
+
 
         self.omni.set_mode_on()
         self.omni.set_desired_twist(xd,yd,td)
@@ -99,7 +99,7 @@ class OmniBridge:
         self.proxy.step()
 
         # Odometry
-        (x, y, t)   = self.omni.get_global_position()
+        (x, y, t)       = self.omni.get_global_position()
         (oxd, oyd, otd) = self.omni.get_current_twist()
 
         q = tf.transformations.quaternion_from_euler(0, 0, t)
@@ -148,6 +148,8 @@ class OmniBridge:
                                          odom_time,
                                          "caster_" + str(i),
                                          "base_link")
+                # NOTE: This is a huge limitation in rospy's TF node: if the 
+                # transform did not have time to be sent, it gets overwritten (?)
                 rospy.sleep(0.01)
 
 if __name__=='__main__':
