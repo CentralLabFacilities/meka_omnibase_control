@@ -1,0 +1,8 @@
+omni_kinematics
+---------------
+
+Omnidirectional mobile robot kinematics library.
+Meant to be used with robots having 3+ steered caster wheels.
+
+Originally developed by François Ferland at 3IT-IntRoLab, 
+Université de Sherbrooke, Qc, Canada.
