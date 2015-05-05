@@ -37,7 +37,7 @@ set_property(
    PROPERTY COMPILE_DEFINITIONS YAMLCPP_03
    )
 endif(${YAMLCPP_VERSION} VERSION_LESS "0.5")
-set(LIBS ${LIBS} ${YAMLCPP_LIBRARY} omni_kinematics)
+set(LIBS ${LIBS} ${YAMLCPP_LIBRARY})
 
 if (RTAI)
 
@@ -66,7 +66,7 @@ find_package(orocos_kdl REQUIRED)
 include_directories(${orocos_kdl_INCLUDE_DIRS})
 set(LIBS ${LIBS} ${orocos_kdl_LIBRARIES})
 
-set(LIBS ${LIBS} ${RTAI_LIBRARIES}  pthread ${Boost_LIBRARIES} ${EIGEN3_LIBRARIES} ${PROTOBUF_LIBRARIES} m3chains m3toolbox m3hardware m3base)
+set(LIBS ${LIBS} omni_kinematics ${RTAI_LIBRARIES}  pthread ${Boost_LIBRARIES} ${EIGEN3_LIBRARIES} ${PROTOBUF_LIBRARIES} m3chains m3toolbox m3hardware m3base)
 
 set( ALL_SRCS 
     src/caster_control.cpp
@@ -74,7 +74,7 @@ set( ALL_SRCS
     src/factory_proxy.cpp
 )
 set( ALL_HDRS
-    include/meka_omnibase_control.hpp
+    include/meka_omnibase_control/meka_omnibase_control.hpp
 )
 
 list(APPEND ALL_SRCS ${ProtoSources})
@@ -89,12 +89,16 @@ ${ProtoFiles}
 ## Building
 set(CMAKE_CXX_FLAGS "-std=c++0x")
 
-add_definitions(-DDEBUG_OUTPUT)
+# This enables writing the state of the base directly to the server output:
+#add_definitions(-DDEBUG_OUTPUT)
 
 add_subdirectory(omni_kinematics)
+add_subdirectory(python)
 
 add_library(${LIBNAME} SHARED ${ALL_SRCS})
 target_link_libraries(${LIBNAME} ${LIBS})
+set_target_properties(${LIBNAME} PROPERTIES 
+                      INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/lib)
 #set_target_properties(${LIBNAME} PROPERTIES COMPILE_FLAGS "-I${CMAKE_BINARY_DIR}/src")
 
 ## Installing

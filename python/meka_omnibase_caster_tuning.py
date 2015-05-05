@@ -11,7 +11,7 @@ import m3.unit_conversion as m3u
 import m3.pwr
 import m3.component_factory as m3f
 import m3.actuator_pb2 as mrt 
-import meka_omnibase_control as m3o
+import m3.meka_omnibase_control as m3o
 import math
 from m3.component_factory import create_component
 from pprint import pprint

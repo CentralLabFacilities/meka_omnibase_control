@@ -4,8 +4,8 @@
 # odometry both as a topic and a TF transform.
 
 import m3.rt_proxy as m3p
-import meka_omnibase_control as m3o
-import m3.component_factory  as m3f
+import m3.meka_omnibase_control as m3o
+import m3.component_factory     as m3f
 import rospy
 import tf
 import math
@@ -38,8 +38,8 @@ class OmniBridge:
         self.pub_odom    = rospy.Publisher("odom", Odometry, queue_size=1)
         self.tf_bc       = tf.TransformBroadcaster()
 
-        self.max_lin  = rospy.param("~max_lin_vel", 0.30)
-        self.max_ang  = rospy.param("~max_ang_vel", 1.00)
+        self.max_lin  = rospy.get_param("~max_lin_vel", 0.30)
+        self.max_ang  = rospy.get_param("~max_ang_vel", 1.00)
         self.cmd_vel  = Twist()
         self.last_cmd = rospy.Time(0)
         self.timeout  = rospy.Duration(0.25)
@@ -87,9 +87,9 @@ class OmniBridge:
         if (yda > self.max_lin):
             yds = self.cmd_vel.linear.y / yda
             yd = yds * self.max_lin
-        if (tda > self.max_lin):
+        if (tda > self.max_ang):
             tds = self.cmd_vel.angular.z / tda
-            td = tds * self.max_lin
+            td = tds * self.max_ang
 
 
         self.omni.set_mode_on()
