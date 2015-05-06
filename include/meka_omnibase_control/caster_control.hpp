@@ -53,6 +53,9 @@ namespace meka_omnibase_control
         double qd_[2];  // Current joint velocities.
         double tq_[2];  // Current torque output.
 
+        double bdmax_;  // Maximum beta_dot (qd[0]) allowable to be considered
+                        // stable.
+
         std::vector<m3::M3PID> pid_;
 
     public:
@@ -70,6 +73,9 @@ namespace meka_omnibase_control
         double kd() const { return kd_; }
         double ki_limit() const { return ki_limit_; }
         double ki_range() const { return ki_range_; }
+
+        double bdmax() const { return bdmax_; }
+        void bdmax(double bdmax) { bdmax_ = bdmax; }
 
         void pidParams(double kp,
                        double ki,
@@ -115,7 +121,16 @@ namespace meka_omnibase_control
             qd_0 = qd_[0];
             qd_1 = qd_[1];
         }
+
+        /// \brief Return true if the caster is considered stable 
+        ///        (qd[0] < bdmax).
+        bool stable() const
+        {
+            return qd_[0] < bdmax_;
+        }
+
     };
+
 }
 
 #endif

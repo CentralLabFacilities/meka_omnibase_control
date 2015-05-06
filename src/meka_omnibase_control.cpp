@@ -130,6 +130,8 @@ void MekaOmnibaseControl::Startup()
        status_.add_calib(false);
 
        param_.add_beta_offset(beta_offset_[i]);
+
+       unstable_start_[i] = -1;
    }
 
    // NOTE: Cartesian limits currently ignored.
@@ -140,6 +142,7 @@ void MekaOmnibaseControl::Startup()
    // Reset global odometry.
    robot_.resetPose();
    
+   cycle_ = 0;
 }
 
 void MekaOmnibaseControl::Shutdown()
@@ -219,9 +222,21 @@ void MekaOmnibaseControl::StepStatus()
     
 }
 
+bool MekaOmnibaseControl::casterStable(int i)
+{
+    if (!casters_[i].stable()) {
+        unstable_start_[i] = cycle_;
+        return false;
+    } else if (cycle_ < (unstable_start_[i] + 1000)) {
+        return false;
+    } else {
+        unstable_start_[i] = -1;
+        return true;
+    }
+}
+
 void MekaOmnibaseControl::StepCommand()
 {
-    static int cycle = 0;
     using VectorType = omni_kinematics::Robot::VectorType;
     using Twist      = omni_kinematics::Twist;
 
@@ -258,12 +273,13 @@ void MekaOmnibaseControl::StepCommand()
 
         M3JointArrayCommand* cmd = (M3JointArrayCommand*)m3joints_->GetCommand();
         for (int i = 0; i < NUM_CASTERS; ++i) {
-            // Update PID parameters (they might have changed).
+            // Update PID parameters and bdmax (they might have changed).
             casters_[i].pidParams(param_.k_ed_p(),
                                   param_.k_ed_i(),
                                   param_.k_ed_d(),
                                   param_.k_ed_i_limit(),
                                   param_.k_ed_i_range());
+            casters_[i].bdmax(param_.bdmax_ratio() * robot_.maxBetad()[i]);
 
             if (last_ctrl_mode_ == MEKA_OMNIBASE_CONTROL_OFF) {
                 casters_[i].reset();
@@ -278,13 +294,11 @@ void MekaOmnibaseControl::StepCommand()
 
             // Unstable wheel test: disable torque for both motors if beta_dot 
             // is too high.
-            // It will restart automatically when the speed slows down.
-            if (fabs(robot_.betad()[i]) > 
-                (param_.bdmax_ratio() * robot_.maxBetad()[i])) {
-                casters_[i].reset();
-                tq[0] = tq[1] = 0.0;
+            // It will restart automatically when the speed slows down, but let
+            // it off for at least 1000 cycles (1 sec).
+            if (!casterStable(i)) {
+                tq[2*i] = tq[2*i+1] = 0.0;
             }
-
         }
 
         // Check the total torque sum and normalize to avoid reaching current
@@ -307,7 +321,7 @@ void MekaOmnibaseControl::StepCommand()
         }
 
 #ifdef DEBUG_OUTPUT
-        if (!(cycle++ % 100)) {
+        if (!(cycle_++ % 100)) {
             std::cerr << "betas:     "  << robot_.beta()[0] << ", "
                                         << robot_.beta()[1] << ", "
                                         << robot_.beta()[2] << ", "
@@ -342,6 +356,11 @@ void MekaOmnibaseControl::StepCommand()
                                         << cmd->tq_desired(5) << ", "
                                         << cmd->tq_desired(7)
                       << std::endl; 
+            std::cerr << "stability: "  << casterStable(0) << ", "
+                                        << casterStable(1) << ", "
+                                        << casterStable(2) << ", "
+                                        << casterStable(3)
+                      << std::endl;
         }
 #endif
 

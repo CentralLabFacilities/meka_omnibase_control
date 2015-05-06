@@ -41,6 +41,9 @@ namespace meka_omnibase_control
 
         int                                     last_ctrl_mode_;
 
+        int                                     cycle_;
+        int                                     unstable_start_[NUM_CASTERS];
+
     public:
         MekaOmnibaseControl():
             m3rt::M3Component(ROBOT_PRIORITY),
@@ -70,6 +73,10 @@ namespace meka_omnibase_control
         void Shutdown();
         void StepStatus();
         void StepCommand();
+
+        // Tells if the caster is stable (or has been stable for at least 1000
+        // cycles).
+        bool casterStable(int i);
 
     };
 }
