@@ -1,6 +1,6 @@
 import m3.toolbox as m3t
 from m3.component import M3Component
-import m3.meka_omnibase_control_pb2 as mob
+import meka_omnibase_control_pb2 as mob
 
 class MekaOmnibaseControl(M3Component):
     
