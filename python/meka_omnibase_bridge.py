@@ -4,7 +4,7 @@
 # odometry both as a topic and a TF transform.
 
 import m3.rt_proxy as m3p
-import m3.meka_omnibase_control as m3o
+import meka_omnibase_control as m3o
 import m3.component_factory     as m3f
 import rospy
 import tf
