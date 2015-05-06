@@ -5,14 +5,16 @@ set(LIBNAME "meka_omnibase_control")
 
 set(RTAI on)
 
-set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
+set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
+message("!!!CMP: ${CMAKE_MODULE_PATH}")
+
 find_package(M3 COMPONENTS HARDWARE CHAINS TOOLBOX VEHICLES)
 find_package(M3rt)
 include_directories(${M3RT_INCLUDE_DIR} ${M3_INCLUDE_DIR})
 find_package(RTAI REQUIRED)
 add_definitions(-D__RTAI__)
 find_package(Boost REQUIRED)
-find_package(Eigen3 REQUIRED)
+find_package(Eigen3 3 REQUIRED)
 
 ## First generate the python 
 find_package(Protobuf REQUIRED)
