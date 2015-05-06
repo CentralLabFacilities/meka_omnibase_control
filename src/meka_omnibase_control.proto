@@ -44,6 +44,11 @@ message MekaOmnibaseControlParam
     optional double                     tq_max       = 11;
     // Max (absolute) torque sum for all 8 motors:
     optional double                     tq_sum_max   = 12;
+
+    // Ratio used on betad_max to detect unstable wheels.
+    // Temporarily deactivates and reset the integrator of both motors on a
+    // caster |betad| > betad_max_ratio * betad_max.
+    optional double                     bdmax_ratio  = 13;
 }
 
 message MekaOmnibaseControlCommand

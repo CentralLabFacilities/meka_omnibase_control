@@ -15,22 +15,23 @@ namespace meka_omnibase_control
     ///
     ///   q_dot = [ beta_dot, phi_dot ]^T,
     ///
-    ///   q_dot = -1 * N * e_dot,
+    ///   q_dot = N^-1 * e_dot,
     ///
-    ///   N     = [ -Ns, 0; -Nt, Nt*Nw ] 
+    ///   N^-1  = [ -1/Ns, 0; 1/(Ns*Nw), -1/(Nt*Nw) ]
     ///
     /// and
     ///
-    ///   e_dot = -1 * N^-1 * q_dot
+    ///   e_dot = N * q_dot
     ///
-    ///   N^-1  = [ -1/Ns, 0; -1/(Ns*Nw), 1/(Nt*Nw) ]
+    ///   N     = [ -Ns, 0; -Nt, -Nt*Nw ] 
     ///
     /// Where e_dot are the motor velocities and [Ns,Nw,Nt] are gear ratios.
     /// The equations have been extracted from the original, undocumented PCV
     /// control code.
     ///
-    /// Note that the steer angle (beta) is not managed from this controller, as
-    /// it is obtained from a different sensor.
+    /// Note that the steer angle (beta) zero reference has to be calibrated on
+    /// the PCV with a breakbeam sensor available through the first motor of 
+    /// each caster.
     ///
     class CasterControl
     {

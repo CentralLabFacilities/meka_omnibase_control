@@ -71,6 +71,9 @@ bool MekaOmnibaseControl::ReadConfig(const char* filename)
         double tq_sum_max = doc["param"]["tq_sum_max"].as<double>();
         param_.set_tq_sum_max(tq_sum_max);
 
+        double bdmax_ratio = doc["param"]["bdmax_ratio"].as<double>();
+        param_.set_bdmax_ratio(bdmax_ratio);
+
         for (int i = 0; i < NUM_CASTERS; ++i) {
             casters_[i].readConfig(doc);
         }
@@ -272,6 +275,16 @@ void MekaOmnibaseControl::StepCommand()
                 tq[j] *= command_.tqr(i);
                 tq[j] = CLAMP(tq[j], -param_.tq_max(), param_.tq_max());
             }
+
+            // Unstable wheel test: disable torque for both motors if beta_dot 
+            // is too high.
+            // It will restart automatically when the speed slows down.
+            if (fabs(robot_.betad()[i]) > 
+                (param_.bdmax_ratio() * robot_.maxBetad()[i])) {
+                casters_[i].reset();
+                tq[0] = tq[1] = 0.0;
+            }
+
         }
 
         // Check the total torque sum and normalize to avoid reaching current
