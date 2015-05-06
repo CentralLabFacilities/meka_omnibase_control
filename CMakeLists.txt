@@ -12,7 +12,7 @@ include_directories(${M3RT_INCLUDE_DIR} ${M3_INCLUDE_DIR})
 find_package(RTAI REQUIRED)
 add_definitions(-D__RTAI__)
 find_package(Boost REQUIRED)
-find_package(Eigen3 3 REQUIRED)
+find_package(Eigen3 REQUIRED)
 
 ## First generate the python 
 find_package(Protobuf REQUIRED)
