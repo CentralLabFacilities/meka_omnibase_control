@@ -54,10 +54,13 @@ include_directories(
     ${PROTOBUF_INCLUDE_DIR}
     ${M3_INCLUDE_DIR}
     ${M3_SRC}
+    # TODO: This is necessary for protobufs files including other generated
+    # protobuf files without specifying the folder/module.
+    # It should be part of the protobuf macros.
+    ${CMAKE_CURRENT_BINARY_DIR}/../m3meka/src/m3/hardware
+    ${CMAKE_CURRENT_BINARY_DIR}/../m3meka/src/m3/chains
+    ${CMAKE_CURRENT_BINARY_DIR}/../m3meka/src/m3/toolbox
 )
-
-message("!!! M3_ROOT: ${M3_ROOT} M3_SRC: ${M3_SRC} M3_INCLUDE_DIR: ${M3_INCLUDE_DIR}")
-
 
 # Start Protobuf stuff
 # Cpp protobufs
