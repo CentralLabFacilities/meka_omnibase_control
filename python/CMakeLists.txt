@@ -8,7 +8,6 @@ file(GLOB ${PROJECT_NAME}_m3
 set(M3SCRIPTS
     meka_omnibase_calibrate.py
     meka_omnibase_caster_tuning.py
-    meka_omnibase_bridge.py
 )
 
 find_package(PythonLibs 2.7 REQUIRED)
