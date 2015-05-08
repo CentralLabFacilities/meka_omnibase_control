@@ -35,7 +35,8 @@ bool MekaOmnibaseControl::ReadConfig(const char* filename)
             return false;
         }
 
-        using VectorType = omni_kinematics::Robot::VectorType;
+        //using VectorType = omni_kinematics::Robot::VectorType;
+        typedef omni_kinematics::Robot::VectorType VectorType;
         robot_.alpha() = doc["param"]["alpha"].as<VectorType>();
         robot_.l() = doc["param"]["l"].as<VectorType>();
         robot_.d() = doc["param"]["d"].as<VectorType>();
@@ -151,7 +152,8 @@ void MekaOmnibaseControl::Shutdown()
 
 void MekaOmnibaseControl::StepStatus()
 {
-    using VectorType = omni_kinematics::Robot::VectorType;
+    //using VectorType = omni_kinematics::Robot::VectorType;
+    typedef omni_kinematics::Robot::VectorType VectorType;
     static VectorType beta(NUM_CASTERS);
     static VectorType betad(NUM_CASTERS);
     static VectorType phi(NUM_CASTERS);
@@ -237,8 +239,10 @@ bool MekaOmnibaseControl::casterStable(int i)
 
 void MekaOmnibaseControl::StepCommand()
 {
-    using VectorType = omni_kinematics::Robot::VectorType;
-    using Twist      = omni_kinematics::Twist;
+    //using VectorType = omni_kinematics::Robot::VectorType;
+    //using Twist      = omni_kinematics::Twist;
+    typedef omni_kinematics::Robot::VectorType VectorType;
+    typedef omni_kinematics::Twist             Twist;
 
     static Twist twist;
     static VectorType betad(NUM_CASTERS, 0.0);
