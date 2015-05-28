@@ -25,18 +25,21 @@ param:
     des_phid_ratio: [-1.0, -1.0, -1.0, -1.0] 
 
     # TODO: Real values!
-    betad_max: [24.0, 24.0, 24.0, 24.0]
-    betadd_max: [24.0, 24.0, 24.0, 24.0]
-    phid_max: [6.0, 6.0, 6.0, 6.0]
+    betad_max: [12.0, 12.0, 12.0, 12.0]
+    betadd_max: [3.0, 3.0, 3.0, 3.0]
+    phid_max: [3.0, 3.0, 3.0, 3.0]
     phidd_max: [6.0, 6.0, 6.0, 6.0]
 
-    tq_max:     2000.0
-    tq_sum_max: 3000.0 
+    bdmax_ratio: 1.2
+
+    tq_max:     1500.0
+    tq_sum_max: 2500.0 
 
     #casters:
     Ns: 4.0000 # 96/24
     Nt: 2.4286 # 85/35
-    Nw: 2.0000 # 32/16
+    #Nw: 2.0000 # 32/16
+    Nw: 4.0000 # Should be 32/16, but somehow velocities are twice what they should be.
     k_ed_p:  18.0
     k_ed_i:  0.04
     k_ed_d:  0.4000000

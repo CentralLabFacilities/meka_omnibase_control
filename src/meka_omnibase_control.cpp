@@ -321,7 +321,7 @@ void MekaOmnibaseControl::StepCommand()
         }
 
 #ifdef DEBUG_OUTPUT
-        if (!(cycle_++ % 100)) {
+        if (!(cycle_++ % 2000)) {
             std::cerr << "betas:     "  << robot_.beta()[0] << ", "
                                         << robot_.beta()[1] << ", "
                                         << robot_.beta()[2] << ", "
