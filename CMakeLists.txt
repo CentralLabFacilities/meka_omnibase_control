@@ -5,14 +5,16 @@ set(LIBNAME "meka_omnibase_control")
 
 set(RTAI on)
 
-set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
+if(BUILD_LOCAL)
+    set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
+endif(BUILD_LOCAL)
+
 find_package(M3 COMPONENTS HARDWARE CHAINS TOOLBOX VEHICLES)
 find_package(M3rt)
-include_directories(${M3RT_INCLUDE_DIR} ${M3_INCLUDE_DIR})
 find_package(RTAI REQUIRED)
 add_definitions(-D__RTAI__)
 find_package(Boost REQUIRED)
-find_package(Eigen3 REQUIRED)
+find_package(Eigen3 3 REQUIRED)
 
 ## First generate the python 
 find_package(Protobuf REQUIRED)
@@ -51,8 +53,14 @@ include_directories(
     ${EIGEN3_INCLUDE_DIR}
     ${PROTOBUF_INCLUDE_DIR}
     ${M3_INCLUDE_DIR}
+    ${M3_SRC}
+    # TODO: This is necessary for protobufs files including other generated
+    # protobuf files without specifying the folder/module.
+    # It should be part of the protobuf macros.
+    ${CMAKE_CURRENT_BINARY_DIR}/../m3meka/src/m3/hardware
+    ${CMAKE_CURRENT_BINARY_DIR}/../m3meka/src/m3/chains
+    ${CMAKE_CURRENT_BINARY_DIR}/../m3meka/src/m3/toolbox
 )
-
 
 # Start Protobuf stuff
 # Cpp protobufs

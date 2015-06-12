@@ -1,4 +1,5 @@
 #include <meka_omnibase_control/meka_omnibase_control.hpp>
+#include <limits>
 
 using namespace meka_omnibase_control;
 
@@ -35,7 +36,8 @@ bool MekaOmnibaseControl::ReadConfig(const char* filename)
             return false;
         }
 
-        using VectorType = omni_kinematics::Robot::VectorType;
+        //using VectorType = omni_kinematics::Robot::VectorType;
+        typedef omni_kinematics::Robot::VectorType VectorType;
         robot_.alpha() = doc["param"]["alpha"].as<VectorType>();
         robot_.l() = doc["param"]["l"].as<VectorType>();
         robot_.d() = doc["param"]["d"].as<VectorType>();
@@ -131,7 +133,9 @@ void MekaOmnibaseControl::Startup()
 
        param_.add_beta_offset(beta_offset_[i]);
 
+       // -1 values for cycle counters indicate they are not active:
        unstable_start_[i] = -1;
+       zero_vel_start_    = -1;
    }
 
    // NOTE: Cartesian limits currently ignored.
@@ -151,7 +155,8 @@ void MekaOmnibaseControl::Shutdown()
 
 void MekaOmnibaseControl::StepStatus()
 {
-    using VectorType = omni_kinematics::Robot::VectorType;
+    //using VectorType = omni_kinematics::Robot::VectorType;
+    typedef omni_kinematics::Robot::VectorType VectorType;
     static VectorType beta(NUM_CASTERS);
     static VectorType betad(NUM_CASTERS);
     static VectorType phi(NUM_CASTERS);
@@ -225,9 +230,9 @@ void MekaOmnibaseControl::StepStatus()
 bool MekaOmnibaseControl::casterStable(int i)
 {
     if (!casters_[i].stable()) {
-        unstable_start_[i] = cycle_;
+        unstable_start_[i] = now();
         return false;
-    } else if (cycle_ < (unstable_start_[i] + 1000)) {
+    } else if (elapsed(unstable_start_[i]) < 1000) {
         return false;
     } else {
         unstable_start_[i] = -1;
@@ -235,10 +240,22 @@ bool MekaOmnibaseControl::casterStable(int i)
     }
 }
 
+bool MekaOmnibaseControl::testZeroVel()
+{
+    static const double EPS = 1e-6;
+
+    const double& xd = command_.xd_des(0);
+    const double& yd = command_.xd_des(1);
+    const double& td = command_.xd_des(2);
+    return ((xd*xd + yd*yd + td*td) < EPS);
+}
+
 void MekaOmnibaseControl::StepCommand()
 {
-    using VectorType = omni_kinematics::Robot::VectorType;
-    using Twist      = omni_kinematics::Twist;
+    //using VectorType = omni_kinematics::Robot::VectorType;
+    //using Twist      = omni_kinematics::Twist;
+    typedef omni_kinematics::Robot::VectorType VectorType;
+    typedef omni_kinematics::Twist             Twist;
 
     static Twist twist;
     static VectorType betad(NUM_CASTERS, 0.0);
@@ -301,6 +318,26 @@ void MekaOmnibaseControl::StepCommand()
             }
         }
 
+        // Test for zero velocity: release torque control and reset PIDs if the
+        // desired velocity has been zero for 1000 cycles (1 sec).
+        if (testZeroVel()) {
+            // Currently at zero velocity.
+            if (zero_vel_start_ > 0) {
+                // If the zero velocity counter started, test the elapsed time.
+                if (elapsed(zero_vel_start_) > 1000) {
+                    for (int i = 0; i < NUM_CASTERS; ++i) {
+                        casters_[i].reset();
+                    }
+                }
+            } else {
+                // Start zero velocity cycle counter.
+                zero_vel_start_ = now();
+            }
+        } else {
+            // Reset zero velocity cycle counter.
+            zero_vel_start_ = -1;
+        }
+
         // Check the total torque sum and normalize to avoid reaching current
         // limit.
         double tq_sum = 0.0;
@@ -321,7 +358,11 @@ void MekaOmnibaseControl::StepCommand()
         }
 
 #ifdef DEBUG_OUTPUT
+<<<<<<< HEAD
         if (!(cycle_++ % 2000)) {
+=======
+        if (!(now() % 100)) {
+>>>>>>> 99f44d0bdeef24f3e87c81f1bfa410e67b4d5e6c
             std::cerr << "betas:     "  << robot_.beta()[0] << ", "
                                         << robot_.beta()[1] << ", "
                                         << robot_.beta()[2] << ", "
@@ -373,5 +414,32 @@ void MekaOmnibaseControl::StepCommand()
     }
 
     last_ctrl_mode_ = command_.ctrl_mode();
+    tick();
+}
+
+int MekaOmnibaseControl::now() const
+{
+    return cycle_;
+}
+
+void MekaOmnibaseControl::tick()
+{
+    ++cycle_;
+    if (cycle_ < 0) {
+        // Overflowed:
+        cycle_ = 0;
+    }
+}
+
+int MekaOmnibaseControl::elapsed(int begin) const
+{
+    // NOTE: Assumes now is always in the future and tests for overflows.
+    
+    int e = now() - begin;
+    if (e < 0) {
+        // Overflowed, recalculate: 
+        return std::numeric_limits<int>::max() + e;
+        
+    }
 }
 
