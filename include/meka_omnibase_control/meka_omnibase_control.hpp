@@ -43,6 +43,7 @@ namespace meka_omnibase_control
 
         int                                     cycle_;
         int                                     unstable_start_[NUM_CASTERS];
+        int                                     zero_vel_start_;
 
     public:
         MekaOmnibaseControl():
@@ -74,10 +75,23 @@ namespace meka_omnibase_control
         void StepStatus();
         void StepCommand();
 
-        // Tells if the caster is stable (or has been stable for at least 1000
-        // cycles).
+        /// \brief Tells if the caster is stable (or has been stable for at 
+        ///        least 1000 cycles).
         bool casterStable(int i);
 
+        /// \brief Returns true if the current desired velocity is zero.
+        bool testZeroVel();
+
+        /// \brief Return the current time in ticks.
+        int now() const;
+
+        /// \brief Increments cycle counter and test for overflows.
+        void tick();
+
+        /// \brief Returns the elapsed time (in ticks) since the given time.
+        ///
+        /// Test for overflows, always return >= 0 (if the given time is >= 0).
+        int elapsed(int begin) const;
     };
 }
 
