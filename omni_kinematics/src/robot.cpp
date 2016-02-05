@@ -29,8 +29,8 @@ Robot::Robot(unsigned int n,
     betad_(nb_wheels_, 0.0),
     phid_(nb_wheels_, 0.0)
 {
-    // NOTE: We don't support robots with less than 3 wheels.
-    assert(nb_wheels_ > 2);
+    // NOTE: We don't support robots with less than 2 wheels.
+    assert(nb_wheels_ >= 2);
 
     // Put wheel corners at regular intervals.
     for (unsigned int i = 1; i < nb_wheels_; ++i)

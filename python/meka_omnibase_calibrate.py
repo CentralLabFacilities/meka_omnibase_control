@@ -10,6 +10,8 @@ import math
 import numpy
 import time
 
+WHEEL_COUNT = 2
+
 if __name__=='__main__':
 
     proxy = m3p.M3RtProxy()
@@ -39,10 +41,10 @@ if __name__=='__main__':
 
     calib_count = 0
     try:
-        while (calib_count != 4):
+        while (calib_count != WHEEL_COUNT):
             calib_count = 0
-            calib = [False,False,False,False]
-            for i in range(0,4):
+            calib = [False] * WHEEL_COUNT
+            for i in range(0,WHEEL_COUNT):
                 calib[i] = omni.status.calib[i]
                 if (calib[i]):
                     calib_count = calib_count + 1

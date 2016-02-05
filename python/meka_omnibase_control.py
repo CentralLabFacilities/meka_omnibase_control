@@ -7,7 +7,8 @@ class MekaOmnibaseControl(M3Component):
     def __init__(self, name, type):
         M3Component.__init__(self, name, type)
 
-        self.num_casters = 4
+        # TODO: Figure this out from config.
+        self.num_casters = 2
 
         self.command = mob.MekaOmnibaseControlCommand()
         self.status  = mob.MekaOmnibaseControlStatus()
@@ -17,7 +18,7 @@ class MekaOmnibaseControl(M3Component):
 
         for i in range(3):
             self.command.xd_des.append(0.0)
-        for i in range(4):
+        for i in range(self.num_casters):
             self.command.betad_des.append(0.0)
             self.command.phid_des.append(0.0)
             self.command.tqr.append(0.0)
@@ -50,7 +51,7 @@ class MekaOmnibaseControl(M3Component):
         self.command.tqr[i] = tqr 
 
     def set_caster_vel(self, i, betad, phid):
-        if (i > 3):
+        if (i > (self.num_casters -1)):
             return
         self.command.betad_des[i] = betad
         self.command.phid_des[i]  = phid

@@ -94,7 +94,7 @@ class OmniBridge:
 
         self.omni.set_mode_on()
         self.omni.set_desired_twist(xd,yd,td)
-        for i in range(0,4):
+        for i in range(0,len(self.omni.status.l)):
             self.omni.set_caster_tqr(i, 1.0)
         self.proxy.step()
 
@@ -134,7 +134,7 @@ class OmniBridge:
             rospy.logdebug("phid:  " + str(self.omni.status.phi_d))
             self.diag_i = 0
 
-            for i in range(0,4):
+            for i in range(0,len(self.omni.status.l)):
                 l = self.omni.status.l[i]
                 alpha = self.omni.status.alpha[i]
                 x = l * math.cos(alpha)

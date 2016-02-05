@@ -22,7 +22,7 @@ bool MekaOmnibaseControl::ReadConfig(const char* filename)
         param_.set_td_max( doc["param"]["td_max"].as<double>());
         param_.set_tdd_max(doc["param"]["tdd_max"].as<double>());
 
-        // Make sure there is at least 4 casters defined by looking at the 
+        // Make sure there is at least 2 casters defined by looking at the 
         // lowest count of all parameters:
         size_t n_casters = doc["param"]["alpha"].size();
         n_casters = std::min(n_casters, doc["param"]["l"].size());
@@ -31,7 +31,8 @@ bool MekaOmnibaseControl::ReadConfig(const char* filename)
         n_casters = std::min(n_casters, doc["param"]["beta_offset"].size());
         if (n_casters != NUM_CASTERS) {
             std::cerr << "MekaOmnibaseControl: Config does not define "
-                         "4 casters."
+                      << NUM_CASTERS
+                      << "casters."
                       << std::endl;
             return false;
         }
