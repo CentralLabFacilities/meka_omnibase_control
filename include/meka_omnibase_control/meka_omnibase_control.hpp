@@ -12,8 +12,7 @@
 
 namespace meka_omnibase_control
 {
-    // TEMP!
-    static const int NUM_CASTERS = 2; 
+    static const int NUM_CASTERS = 4; 
 
     class MekaOmnibaseControl: public m3rt::M3Component
     {

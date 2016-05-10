@@ -10,15 +10,14 @@ import math
 import numpy
 import time
 
-WHEEL_COUNT = 2
+WHEEL_COUNT = 4
 
 if __name__=='__main__':
 
     proxy = m3p.M3RtProxy()
     proxy.start()
 
-    pwr_name = proxy.get_available_components('m3pwr')
-    pwr  = m3f.create_component(pwr_name[1])
+    pwr  = m3f.create_component("m3pwr_pwr029")
     omni = m3o.MekaOmnibaseControl('meka_omnibase_control_mb2', 'meka_omnibase_control')
 
     proxy.make_operational_all()

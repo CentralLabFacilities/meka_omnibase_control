@@ -8,7 +8,7 @@ class MekaOmnibaseControl(M3Component):
         M3Component.__init__(self, name, type)
 
         # TODO: Figure this out from config.
-        self.num_casters = 2
+        self.num_casters = 4
 
         self.command = mob.MekaOmnibaseControlCommand()
         self.status  = mob.MekaOmnibaseControlStatus()

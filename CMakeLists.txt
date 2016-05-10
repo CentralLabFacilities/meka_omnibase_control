@@ -98,7 +98,7 @@ ${ProtoFiles}
 set(CMAKE_CXX_FLAGS "-std=c++0x")
 
 # This enables writing the state of the base directly to the server output:
-#add_definitions(-DDEBUG_OUTPUT=0)
+add_definitions(-DDEBUG_OUTPUT=0)
 
 add_subdirectory(omni_kinematics)
 add_subdirectory(python)
