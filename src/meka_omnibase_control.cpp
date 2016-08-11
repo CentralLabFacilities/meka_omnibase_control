@@ -68,23 +68,32 @@ bool MekaOmnibaseControl::ReadConfig(const char* filename)
         robot_.maxBetadd() = doc["param"]["betadd_max"].as<VectorType>();
         robot_.maxPhid() = doc["param"]["phid_max"].as<VectorType>();
         robot_.maxPhidd() = doc["param"]["phidd_max"].as<VectorType>();
-        
-        double tq_max = doc["param"]["tq_max"].as<double>();
-        param_.set_tq_max(tq_max);
-        double tq_sum_max = doc["param"]["tq_sum_max"].as<double>();
-        param_.set_tq_sum_max(tq_sum_max);
 
-        double bdmax_ratio = doc["param"]["bdmax_ratio"].as<double>();
-        param_.set_bdmax_ratio(bdmax_ratio);
+        param_.set_tq_max(doc["param"]["tq_max"].as<double>());
+        param_.set_tq_sum_max(doc["param"]["tq_sum_max"].as<double>());
+        param_.set_bdmax_ratio(doc["param"]["bdmax_ratio"].as<double>());
+
+        const std::vector<double>& k_ed_p = doc["param"]["k_ed_p"].as<VectorType>();
+        std::copy(k_ed_p.begin(), k_ed_p.end(), &kp_[0]);
+        const std::vector<double>& k_ed_i = doc["param"]["k_ed_i"].as<VectorType>();
+        std::copy(k_ed_i.begin(), k_ed_i.end(), &ki_[0]);
+        const std::vector<double>& k_ed_d = doc["param"]["k_ed_d"].as<VectorType>();
+        std::copy(k_ed_d.begin(), k_ed_d.end(), &kd_[0]);
+        const std::vector<double>& k_ed_i_limit = doc["param"]["k_ed_i_limit"].as<VectorType>();
+        std::copy(k_ed_i_limit.begin(), k_ed_i_limit.end(), &ki_limit_[0]);
+        const std::vector<double>& k_ed_i_range = doc["param"]["k_ed_i_range"].as<VectorType>();
+        std::copy(k_ed_i_range.begin(), k_ed_i_range.end(), &ki_range_[0]);
 
         for (int i = 0; i < NUM_CASTERS; ++i) {
             casters_[i].readConfig(doc);
+            casters_[i].pidParams(kp_[i], ki_[i], kd_[i], ki_limit_[i], ki_range_[i]);
         }
-        param_.set_k_ed_p(casters_[0].kp());
-        param_.set_k_ed_i(casters_[0].ki());
-        param_.set_k_ed_d(casters_[0].kd());
-        param_.set_k_ed_i_limit(casters_[0].ki_range());
-        param_.set_k_ed_i_range(casters_[0].ki_limit());
+
+        param_.set_k_ed_p(k_ed_p);
+        param_.set_k_ed_i(k_ed_i);
+        param_.set_k_ed_d(k_ed_d);
+        param_.set_k_ed_i_limit(k_ed_i_limit);
+        param_.set_k_ed_i_range(k_ed_i_range);
 
     } catch (std::exception e) {
         std::cerr << "!!! meka_omnibase_control: failed to read config: "
@@ -292,11 +301,11 @@ void MekaOmnibaseControl::StepCommand()
         M3JointArrayCommand* cmd = (M3JointArrayCommand*)m3joints_->GetCommand();
         for (int i = 0; i < NUM_CASTERS; ++i) {
             // Update PID parameters and bdmax (they might have changed).
-            casters_[i].pidParams(param_.k_ed_p(),
-                                  param_.k_ed_i(),
-                                  param_.k_ed_d(),
-                                  param_.k_ed_i_limit(),
-                                  param_.k_ed_i_range());
+            casters_[i].pidParams(param_.k_ed_p(i),
+                                  param_.k_ed_i(i),
+                                  param_.k_ed_d(i),
+                                  param_.k_ed_i_limit(i),
+                                  param_.k_ed_i_range(i));
             casters_[i].bdmax(param_.bdmax_ratio() * robot_.maxBetad()[i]);
 
             if (last_ctrl_mode_ == MEKA_OMNIBASE_CONTROL_OFF) {
@@ -321,7 +330,7 @@ void MekaOmnibaseControl::StepCommand()
 
         // Test for zero velocity: release torque control and reset PIDs if the
         // desired velocity has been zero for 1000 cycles (1 sec).
-        if (testZeroVel()) {
+        if (testZeroVel()&& command_.ctrl_mode() != MEKA_OMNIBASE_CONTROL_CC) {
             // Currently at zero velocity.
             if (zero_vel_start_ > 0) {
                 // If the zero velocity counter started, test the elapsed time.

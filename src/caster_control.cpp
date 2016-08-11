@@ -15,12 +15,6 @@ void CasterControl::readConfig(YAML::Node& doc)
     nt_       = doc["param"]["Nt"].as<double>();
     nw_       = doc["param"]["Nw"].as<double>();
 
-    kp_       = doc["param"]["k_ed_p"].as<double>();
-    kd_       = doc["param"]["k_ed_d"].as<double>();
-    ki_       = doc["param"]["k_ed_i"].as<double>();
-    ki_range_ = doc["param"]["k_ed_i_range"].as<double>();
-    ki_limit_ = doc["param"]["k_ed_i_limit"].as<double>();
-
 }
 
 void CasterControl::reset()

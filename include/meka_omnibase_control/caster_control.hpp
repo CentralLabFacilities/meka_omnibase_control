@@ -43,8 +43,8 @@ namespace meka_omnibase_control
         double kp_;
         double ki_;
         double kd_;
-        double ki_range_;
         double ki_limit_;
+        double ki_range_;
 
         double e_[2];   // current motor angles.
         double ed_[2];  // current motor velocities.
