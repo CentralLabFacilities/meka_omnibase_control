@@ -33,6 +33,12 @@ namespace meka_omnibase_control
         double                                  des_betad_ratio_[NUM_CASTERS];
         double                                  des_phid_ratio_[NUM_CASTERS];
 
+        double                                  kp_[NUM_CASTERS];
+        double                                  ki_[NUM_CASTERS];
+        double                                  kd_[NUM_CASTERS];
+        double                                  ki_range_[NUM_CASTERS];
+        double                                  ki_limit_[NUM_CASTERS];
+
         std::string                             m3joints_name_;
         std::string                             m3pwr_name_;
 

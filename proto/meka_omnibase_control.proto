@@ -31,11 +31,11 @@ message MekaOmnibaseControlParam
     optional double                     td_max      = 3;
     optional double                     tdd_max     = 4;
 
-    optional double                     k_ed_p       = 5;   // PID params for
-    optional double                     k_ed_i       = 6;   // caster control,
-    optional double                     k_ed_d       = 7;   // two per wheel.
-    optional double                     k_ed_i_limit = 8;   // All wheels have
-    optional double                     k_ed_i_range = 9;   // the same values.  
+    repeated double                     k_ed_p       = 5;   // PID params for
+    repeated double                     k_ed_i       = 6;   // caster control,
+    repeated double                     k_ed_d       = 7;   // two per wheel.
+    repeated double                     k_ed_i_limit = 8;   // All wheels have
+    repeated double                     k_ed_i_range = 9;   // the same values.  
 
     // Beta offset added to the reading of the caster orientation:
     repeated double                     beta_offset  = 10;  
