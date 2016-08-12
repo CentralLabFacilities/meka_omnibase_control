@@ -25,7 +25,7 @@ class M3Proc:
     def start(self):
         self.proxy.start()
 
-        self.omni = m3o.MekaOmnibaseControl('meka_omnibase_control_mb2', 'meka_omnibase_control')
+        self.omni = m3o.MekaOmnibaseControl('meka_omnibase_control_component', 'meka_omnibase_control')
         self.proxy.subscribe_status(self.omni)
         self.proxy.publish_param(self.omni)
         self.proxy.publish_command(self.omni)
@@ -35,14 +35,17 @@ class M3Proc:
             print 'No joint components available'
             self.proxy.stop()
             exit()
-        joint_names= ['m3joint_mb2_j0',
-                      'm3joint_mb2_j1',
-                      'm3joint_mb2_j2',
-                      'm3joint_mb2_j3',
-                      'm3joint_mb2_j4',
-                      'm3joint_mb2_j5',
-                      'm3joint_mb2_j6',
-                      'm3joint_mb2_j7']
+        joint_names= ['m3joint_mb7_j0',
+                      'm3joint_mb7_j1',
+                      'm3joint_mb7_j2',
+                      'm3joint_mb7_j3',
+                      'm3joint_mb7_j4',
+                      'm3joint_mb7_j5',
+                      'm3joint_mb7_j6',
+                      'm3joint_mb7_j7']
+
+	#joint_names=['m3joint_mb7_j0',
+#		     'm3joint_mb7_j1']
 
         actuator_ec_names=[]
         actuator_names=[]
@@ -247,7 +250,7 @@ class M3Proc:
             self.scope_thetadotdot=m3t.M3Scope(xwidth=100,yrange=None,title='ThetaDotDot')'''
 
 
-        for c in self.joint:
+        for index,c in enumerate(self.joint):
             try:
                 for scope_theta in self.scope_theta:
                     if self.do_scope_theta and self.scope_theta is not None:
@@ -261,9 +264,10 @@ class M3Proc:
                     if self.do_scope_thetadotdot and self.scope_thetadotdot is not None:
                          scope_thetadotdot.plot(c.get_thetadotdot_deg())
     
-                for scope_torque in self.scope_torque:
-                    if self.do_scope_torque and self.scope_torque is not None:
-                         scope_torque.plot(c.get_torque_mNm())
+                #for scope_torque in self.scope_torque:
+                if self.do_scope_torque and self.scope_torque[index] is not None:
+                     self.scope_torque[index].plot(c.get_torque_mNm())
+                #print c.name, c.get_torque_mNm()
         
                 for scope_torquedot in self.scope_torquedot:
                     if self.do_scope_torquedot and self.scope_torquedot is not None:

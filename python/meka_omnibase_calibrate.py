@@ -4,7 +4,7 @@
 # to be calibrated.
 
 import m3.rt_proxy as m3p
-import meka_omnibase_control as m3o
+import m3.meka_omnibase_control as m3o
 import m3.component_factory  as m3f
 import math
 import numpy
@@ -17,8 +17,8 @@ if __name__=='__main__':
     proxy = m3p.M3RtProxy()
     proxy.start()
 
-    pwr  = m3f.create_component("m3pwr_pwr029")
-    omni = m3o.MekaOmnibaseControl('meka_omnibase_control_mb2', 'meka_omnibase_control')
+    pwr  = m3f.create_component("m3pwr_pwr042")
+    omni = m3o.MekaOmnibaseControl('meka_omnibase_control_component', 'meka_omnibase_control')
 
     proxy.make_operational_all()
 

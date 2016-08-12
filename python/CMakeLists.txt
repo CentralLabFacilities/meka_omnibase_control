@@ -11,7 +11,7 @@ set(M3SCRIPTS
 )
 
 find_package(PythonLibs 2.7 REQUIRED)
-find_package( PythonInterp REQUIRED )
+find_package(PythonInterp REQUIRED)
 
 execute_process ( 
    COMMAND ${PYTHON_EXECUTABLE} -c 

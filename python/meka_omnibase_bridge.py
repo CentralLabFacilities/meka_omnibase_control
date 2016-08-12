@@ -4,7 +4,7 @@
 # odometry both as a topic and a TF transform.
 
 import m3.rt_proxy as m3p
-import meka_omnibase_control as m3o
+import m3.meka_omnibase_control as m3o
 import m3.component_factory     as m3f
 import rospy
 import tf
@@ -16,7 +16,7 @@ from nav_msgs.msg      import Odometry
 class OmniBridge:
     def __init__(self):
         # M3-specific stuff
-        self.omni = m3o.MekaOmnibaseControl('meka_omnibase_control_mb2', 'meka_omnibase_control')
+        self.omni = m3o.MekaOmnibaseControl('meka_omnibase_control_component', 'meka_omnibase_control')
 
         self.proxy = m3p.M3RtProxy()
         self.proxy.start()
