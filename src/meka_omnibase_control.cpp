@@ -141,7 +141,7 @@ void MekaOmnibaseControl::Startup()
        param_.add_k_ed_d(kd_[i]);
        param_.add_k_ed_i_limit(ki_limit_[i]);
        param_.add_k_ed_i_range(ki_range_[i]);
-
+       
        param_.add_beta_offset(beta_offset_[i]);
 
        // -1 values for cycle counters indicate they are not active:
@@ -273,7 +273,6 @@ void MekaOmnibaseControl::StepCommand()
     static VectorType phid(NUM_CASTERS, 0.0);
     static VectorType tq(NUM_CASTERS*2, 0.0);
 
-
     twist.xd = command_.xd_des(0);
     twist.yd = command_.xd_des(1);
     twist.td = command_.xd_des(2);
@@ -312,9 +311,10 @@ void MekaOmnibaseControl::StepCommand()
             if (last_ctrl_mode_ == MEKA_OMNIBASE_CONTROL_OFF) {
                 casters_[i].reset();
             }
-
+            
             casters_[i].stepCommand(betad[i], phid[i]);
             casters_[i].tq(tq[2*i], tq[2*i+1]);
+
             for (int j = 2*i; j < (2*i+1); ++j) {
                 tq[j] *= command_.tqr(i);
                 tq[j] = CLAMP(tq[j], -param_.tq_max(), param_.tq_max());
@@ -331,7 +331,7 @@ void MekaOmnibaseControl::StepCommand()
 
         // Test for zero velocity: release torque control and reset PIDs if the
         // desired velocity has been zero for 1000 cycles (1 sec).
-        if (testZeroVel()&& command_.ctrl_mode() != MEKA_OMNIBASE_CONTROL_CC) {
+        if (testZeroVel()) {
             // Currently at zero velocity.
             if (zero_vel_start_ > 0) {
                 // If the zero velocity counter started, test the elapsed time.
@@ -370,6 +370,8 @@ void MekaOmnibaseControl::StepCommand()
 
 #ifdef DEBUG_OUTPUT
         if (!(now() % 1000)) {
+            
+            
             std::cerr << "betas:     "  << robot_.beta()[0] << ", "
                                         << robot_.beta()[1] << ", "
                                         << robot_.beta()[2] << ", "

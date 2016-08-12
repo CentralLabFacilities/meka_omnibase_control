@@ -53,8 +53,5 @@ void CasterControl::stepCommand(double qd_des_0, double qd_des_1)
                               ki_range());
     }
 
-    //std::cout << "err:   " << ed_[1] - ed_des[1] << std::endl;
-    //std::cout << "tq[1]: " << tq_[1]    << std::endl;
-
 }
 

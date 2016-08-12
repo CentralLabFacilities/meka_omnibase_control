@@ -18,6 +18,7 @@ This package contains the core of the m3 system, i.e. a realtime server and basi
   <run_depend>m3core</run_depend>
   <run_depend>boost</run_depend>
   <run_depend>eigen</run_depend>
+  <run_depend>rospy</run_depend>
   <run_depend>libqt4-dev</run_depend>
   <run_depend>libprotobuf-dev</run_depend>
   <run_depend>libncurses5-dev</run_depend>
