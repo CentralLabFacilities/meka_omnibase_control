@@ -89,11 +89,6 @@ bool MekaOmnibaseControl::ReadConfig(const char* filename)
             casters_[i].pidParams(kp_[i], ki_[i], kd_[i], ki_limit_[i], ki_range_[i]);
         }
 
-        param_.set_k_ed_p(k_ed_p);
-        param_.set_k_ed_i(k_ed_i);
-        param_.set_k_ed_d(k_ed_d);
-        param_.set_k_ed_i_limit(k_ed_i_limit);
-        param_.set_k_ed_i_range(k_ed_i_range);
 
     } catch (std::exception e) {
         std::cerr << "!!! meka_omnibase_control: failed to read config: "
@@ -140,6 +135,12 @@ void MekaOmnibaseControl::Startup()
        status_.add_l(robot_.l()[i]);
 
        status_.add_calib(false);
+
+       param_.add_k_ed_p(kp_[i]);
+       param_.add_k_ed_i(ki_[i]);
+       param_.add_k_ed_d(kd_[i]);
+       param_.add_k_ed_i_limit(ki_limit_[i]);
+       param_.add_k_ed_i_range(ki_range_[i]);
 
        param_.add_beta_offset(beta_offset_[i]);
 
