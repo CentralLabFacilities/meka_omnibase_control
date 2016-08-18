@@ -31,10 +31,12 @@ class M3Proc:
         self.proxy.publish_command(self.omni)
 
         joint_names=self.proxy.get_joint_components()
+        
         if len(joint_names)==0:
             print 'No joint components available'
             self.proxy.stop()
             exit()
+            
         joint_names= ['m3joint_mb7_j0',
                       'm3joint_mb7_j1',
                       'm3joint_mb7_j2',
@@ -43,9 +45,6 @@ class M3Proc:
                       'm3joint_mb7_j5',
                       'm3joint_mb7_j6',
                       'm3joint_mb7_j7']
-
-	#joint_names=['m3joint_mb7_j0',
-#		     'm3joint_mb7_j1']
 
         actuator_ec_names=[]
         actuator_names=[]
@@ -61,7 +60,6 @@ class M3Proc:
                 if actuator_ec != "":
                     actuator_ec_names.append(actuator_ec)
 
-       
 
         self.joint=[]
         self.actuator_ec=[]
@@ -157,11 +155,13 @@ class M3Proc:
         self.scope_torquedot=[]
         
         for i,name in zip(xrange(len(joint_names)),joint_names):
-            self.scope_torque.append(       m3t.M3ScopeN(xwidth=100,yrange=None,title='Torque')     )
-            self.scope_theta.append(        m3t.M3ScopeN(xwidth=100,yrange=None,title='Theta')      )
-            self.scope_thetadot.append(     m3t.M3ScopeN(xwidth=100,yrange=None,title='ThetaDot')   )
-            self.scope_thetadotdot.append(  m3t.M3ScopeN(xwidth=100,yrange=None,title='ThetaDotDot'))
-            self.scope_torquedot.append(    m3t.M3ScopeN(xwidth=100,yrange=None,title='TorqueDot')  )
+            if i != 0 and i % 2 == 0:
+                continue
+            self.scope_torque.append(       m3t.M3ScopeN(xwidth=500,yrange=[-1000000,1000000],title='Torque '+str(name)+'/'+str(i+1)))
+            self.scope_theta.append(        m3t.M3ScopeN(xwidth=500,yrange=None,title='Theta '+str(name)+'/'+str(i+1)))
+            self.scope_thetadot.append(     m3t.M3ScopeN(xwidth=500,yrange=None,title='ThetaDot '+str(name)+'/'+str(i+1)))
+            self.scope_thetadotdot.append(  m3t.M3ScopeN(xwidth=500,yrange=None,title='ThetaDotDot '+str(name)+'/'+str(i+1)))
+            self.scope_torquedot.append(    m3t.M3ScopeN(xwidth=500,yrange=None,title='TorqueDot '+str(name)+'/'+str(i+1)))
             
         #Create gui
 
@@ -196,9 +196,9 @@ class M3Proc:
             self.gui.add('M3GuiSliders','Caster Ratio',
                     (self,'tqr_'),range(0,4),[0.0,1.0]*4,m3g.M3GuiWrite)
             self.gui.add('M3GuiSliders','xdot', 
-                    (self,'xd_'),[0],[-0.3,0.3],m3g.M3GuiWrite)
+                    (self,'xd_'),[0],[-0.6,0.6],m3g.M3GuiWrite)
             self.gui.add('M3GuiSliders','ydot', 
-                    (self,'yd_'),[0],[-0.3,0.3],m3g.M3GuiWrite)
+                    (self,'yd_'),[0],[-0.6,0.6],m3g.M3GuiWrite)
             self.gui.add('M3GuiSliders','tdot', 
                     (self,'td_'),[0],[-1.0,1.0],m3g.M3GuiWrite)
 
@@ -232,46 +232,22 @@ class M3Proc:
         else:
             self.omni.set_mode_off()
 
-        #self.proxy.pretty_print_component(self.actuator_ec[0].name)
-        #self.proxy.pretty_print_component(self.joint[0].name)
-        '''if self.do_scope_torque and self.scope_torque is None and len(self.joint)==1:
-            self.scope_torque.plot()
-    
-        if self.do_scope_theta and self.scope_theta is None and len(self.joint)==1:
-            self.scope_theta=m3t.M3Scope2(xwidth=100,yrange=None,title='Theta')
-    
-        if self.do_scope_torquedot and self.scope_torquedot is None and len(self.joint)==1:
-            self.scope_torquedot=m3t.M3Scope(xwidth=100,yrange=None,title='TorqueDot')
-    
-        if self.do_scope_thetadot and self.scope_thetadot is None and len(self.joint)==1:
-            self.scope_thetadot=m3t.M3Scope2(xwidth=100,yrange=None,title='ThetaDot')
-    
-        if self.do_scope_thetadotdot and self.scope_thetadotdot is None and len(self.joint)==1:
-            self.scope_thetadotdot=m3t.M3Scope(xwidth=100,yrange=None,title='ThetaDotDot')'''
-
-
-        for index,c in enumerate(self.joint):
+        for i in xrange(len(self.joint)/2):
             try:
-                for scope_theta in self.scope_theta:
-                    if self.do_scope_theta and self.scope_theta is not None:
-                         scope_theta.plot(c.get_theta_deg())
+                if self.do_scope_theta and self.scope_theta[i] is not None:
+                     self.scope_theta[i].plot(self.joint[2*i].get_theta_deg(),self.joint[2*i+1].get_theta_deg())
                          
-                for scope_thetadot in self.scope_thetadot:
-                    if self.do_scope_thetadot and self.scope_thetadot is not None:
-                         scope_thetadot.plot(c.get_thetadot_deg())
+                if self.do_scope_thetadot and self.scope_thetadot[i] is not None:
+                     self.scope_thetadot[i].plot(self.joint[2*i].get_thetadot_deg(),self.joint[2*i+1].get_thetadot_deg())
     
-                for scope_thetadotdot in self.scope_thetadotdot:
-                    if self.do_scope_thetadotdot and self.scope_thetadotdot is not None:
-                         scope_thetadotdot.plot(c.get_thetadotdot_deg())
+                if self.do_scope_thetadotdot and self.scope_thetadotdot[i] is not None:
+                     self.scope_thetadotdot[i].plot(self.joint[2*i].get_thetadotdot_deg(),self.joint[2*i+1].get_thetadotdot_deg())
     
-                #for scope_torque in self.scope_torque:
-                if self.do_scope_torque and self.scope_torque[index] is not None:
-                     self.scope_torque[index].plot(c.get_torque_mNm())
-                #print c.name, c.get_torque_mNm()
+                if self.do_scope_torque and self.scope_torque[i] is not None:
+                     self.scope_torque[i].plot(self.joint[2*i].get_torque_mNm(),self.joint[2*i+1].get_torque_mNm())
         
-                for scope_torquedot in self.scope_torquedot:
-                    if self.do_scope_torquedot and self.scope_torquedot is not None:
-                         scope_torquedot.plot(c.get_torquedot_mNm())
+                if self.do_scope_torquedot and self.scope_torquedot[i] is not None:
+                     self.scope_torquedot[i].plot(self.joint[2*i].get_torquedot_mNm(),self.joint[2*i+1].get_torquedot_mNm())
             except Exception,e:
                 print e
 

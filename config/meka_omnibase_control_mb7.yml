@@ -17,7 +17,6 @@ param:
     # Offsets and ratios applied before sending to model:
     beta_offset: [1.83259265359,1.33527265359,1.83259265359,1.30909265359]
 
-#    beta_offset: [0,0,0,0]
     beta_ratio: [1.0, 1.0, 1.0, 1.0] 
     phid_ratio: [1.0, 1.0, 1.0, 1.0] 
     # Ratios applied before sending velocities to casters.
@@ -40,10 +39,10 @@ param:
     #casters:
     Ns: 4.0000 # 96/24
     Nt: 2.4286 # 85/35
-    #Nw: 2.0000 # 32/16
-    Nw: 2.0000 # Should be 32/16, but somehow velocities are twice what they should be.
-    k_ed_p:  [-16.0,-16.0,-16.0,-16.0] #18
-    k_ed_i:  [-0.06,-0.06,-0.06,-0.06] # 0.04
+    Nw: 5.0000 # Should be 32/16, but somehow velocities are twice what they should be.
+
+    k_ed_p:  [-14.0,-14.0,-14.0,-14.0] #18
+    k_ed_i:  [-0.2,-0.2,-0.2,-0.2] # 0.04 
     k_ed_d:  [-0.0,-0.0,-0.0,-0.0] #0.4
-    k_ed_i_limit: [1000.0,1000.0,1000.0,1000.0]
-    k_ed_i_range: [1000.0,1000.0,1000.0,1000.0]
+    k_ed_i_limit: [800.0,800.0,800.0,800.0]
+    k_ed_i_range: [800.0,800.0,800.0,800.0]

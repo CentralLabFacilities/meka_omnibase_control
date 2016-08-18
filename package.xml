@@ -9,6 +9,7 @@ This package contains the core of the m3 system, i.e. a realtime server and basi
 
   <buildtool_depend>catkin</buildtool_depend>
   <build_depend>m3core</build_depend>
+  <build_depend>m3meka</build_depend>
   <build_depend>boost</build_depend>
   <build_depend>eigen</build_depend>
   <build_depend>libqt4-dev</build_depend>
@@ -16,6 +17,7 @@ This package contains the core of the m3 system, i.e. a realtime server and basi
   <build_depend>libncurses5-dev</build_depend>
 
   <run_depend>m3core</run_depend>
+  <run_depend>m3meka</run_depend>
   <run_depend>boost</run_depend>
   <run_depend>eigen</run_depend>
   <run_depend>rospy</run_depend>

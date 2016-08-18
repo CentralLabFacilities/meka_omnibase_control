@@ -117,7 +117,7 @@ set(LIBRARIES ${LIBRARIES} ${orocos_kdl_LIBRARIES})
 
 ###############################################################################
 # other
-set(LIBRARIES ${LIBRARIES} omni_kinematics pthread m3base)
+set(LIBRARIES ${LIBRARIES} omni_kinematics pthread)
 
 ###############################################################################
 # Protobuff stuff
@@ -127,6 +127,7 @@ set_source_files_properties(${ProtoSources} ${ProtoHeaders} PROPERTIES GENERATED
 ###############################################################################
 # Include directories
 include_directories(
+    ${CMAKE_CURRENT_BINARY_DIR}
     ${CMAKE_CURRENT_BINARY_DIR}/src      # For Protobuf-generated files.
     ${PROJECT_ROOT}/include
     ${PROJECT_ROOT}/omni_kinematics/include
@@ -140,6 +141,7 @@ set(ALL_SRCS
     src/factory_proxy.cpp
 )
 set(ALL_HDRS
+    include/meka_omnibase_control/caster_control.hpp
     include/meka_omnibase_control/meka_omnibase_control.hpp
 )
 
@@ -172,7 +174,6 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 
 ## Installing
 install(TARGETS ${PROJECT_NAME} DESTINATION lib)
-
 install(FILES ${ALL_HDRS} DESTINATION include/m3/${PROJECT_NAME})
 
 execute_process ( 
