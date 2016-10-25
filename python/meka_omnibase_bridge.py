@@ -26,7 +26,7 @@ class OmniBridge:
 
         # TODO: Use the method associated with omnibase instead.
         pwr_name = self.proxy.get_available_components('m3pwr')
-        self.pwr = m3f.create_component(pwr_name[1])
+        self.pwr = m3f.create_component('m3pwr_pwr042') #pwr_name[1]
         self.proxy.subscribe_status(self.pwr)
         self.proxy.publish_command(self.pwr)
         self.pwr.set_motor_power_on()
@@ -34,7 +34,7 @@ class OmniBridge:
         self.proxy.step()
 
         # ROS stuff
-        self.sub_cmd_vel = rospy.Subscriber("cmd_vel", Twist, self.cmd_vel_cb, queue_size=1)
+        self.sub_cmd_vel = rospy.Subscriber("smooth_cmd_vel", Twist, self.cmd_vel_cb, queue_size=1)
         self.pub_odom    = rospy.Publisher("odom", Odometry, queue_size=1)
         self.tf_bc       = tf.TransformBroadcaster()
 
