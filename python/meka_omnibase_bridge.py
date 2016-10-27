@@ -107,13 +107,13 @@ class OmniBridge:
         self.tf_bc.sendTransform((x, y, 0),
                                  q,
                                  odom_time,
-                                 "base_footprint",
+                                 "base_link",
                                  "odom")
 
         odom = Odometry()
         odom.header.frame_id       = "odom"
         odom.header.stamp          = odom_time
-        odom.child_frame_id        = "base_footprint"
+        odom.child_frame_id        = "base_link"
         odom.pose.pose.position.x  = x
         odom.pose.pose.position.y  = y
         odom.pose.pose.position.z  = 0
