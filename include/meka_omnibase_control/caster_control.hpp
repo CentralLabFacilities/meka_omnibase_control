@@ -3,7 +3,7 @@
 
 #include <m3/toolbox/toolbox.h>
 
-namespace meka_omnibase_control
+namespace m3_obase_ctrl
 {
     /// \brief Meka Omnibase caster controller.
     ///

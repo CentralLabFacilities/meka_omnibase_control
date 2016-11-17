@@ -1,7 +1,7 @@
 #include <meka_omnibase_control/caster_control.hpp>
 #include <algorithm>
 
-using namespace meka_omnibase_control;
+using namespace m3;
 
 CasterControl::CasterControl():
     pid_(2)

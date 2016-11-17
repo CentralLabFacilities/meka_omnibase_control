@@ -11,7 +11,7 @@ extern "C"
 
 ///////////////////////////////////////////////////////
 //Creators
-m3rt::M3Component * create_meka_omnibase_control(){return new meka_omnibase_control::MekaOmnibaseControl;}
+m3rt::M3Component * create_meka_omnibase_control(){return new m3_obase_ctrl::MekaOmnibaseControl;}
 //Deletors
 void destroy_meka_omnibase_control(m3rt::M3Component* c) {delete c;}
 

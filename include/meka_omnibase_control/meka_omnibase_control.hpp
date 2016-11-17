@@ -10,7 +10,7 @@
 #include <meka_omnibase_control/caster_control.hpp>
 #include "meka_omnibase_control.pb.h"
 
-namespace meka_omnibase_control
+namespace m3_obase_ctrl
 {
     static const int NUM_CASTERS = 4; 
 

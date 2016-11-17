@@ -19,8 +19,6 @@ set(CMAKE_MODULE_PATH "${PROJECT_ROOT}/cmake/Modules/" $ENV{M3_CMAKE_MODULES} ${
 set(PROJECT_INCLUDE_DIR ${PROJECT_ROOT}/include)
 set(PROJECT_PROTO_DIR ${PROJECT_ROOT}/proto)
 set(PROJECT_SRC_DIR ${PROJECT_ROOT}/src)
-set(PROJECT_INSTALL_LIB ${PROJECT_ROOT}/lib)
-set(PROJECT_INSTALL_LIB ${CMAKE_INSTALL_PREFIX}/lib)
 set(PROJECT_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_ROOT}/bin)
 set(PROJECT_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_ROOT}/lib)
 set(PROJECT_PYTHON_DIR ${PROJECT_ROOT}/python)
@@ -29,18 +27,14 @@ set(PROJECT_PYTHON_DIR ${PROJECT_ROOT}/python)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY  ${PROJECT_RUNTIME_OUTPUT_DIRECTORY})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_LIBRARY_OUTPUT_DIRECTORY})
 
-find_package(catkin QUIET)
-if(catkin_FOUND)
-#  catkin_python_setup()
-else(catkin_FOUND)
-endif(catkin_FOUND)
-
 set(RTAI on)
 
 #if(BUILD_LOCAL)
 #    set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 #endif(BUILD_LOCAL)
 
+###############################################################################
+# Find catkin
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   controller_manager
@@ -56,6 +50,11 @@ find_package(catkin REQUIRED COMPONENTS
   tf
 )
 
+if(catkin_FOUND)
+#  catkin_python_setup()
+else(catkin_FOUND)
+endif(catkin_FOUND)
+
 set(LIBRARIES ${LIBRARIES} ${catkin_LIBRARIES})
 set(INCLUDE_DIRS ${INCLUDE_DIRS} ${catkin_INCLUDE_DIRS})
 
@@ -64,6 +63,7 @@ set(INCLUDE_DIRS ${INCLUDE_DIRS} ${catkin_INCLUDE_DIRS})
 find_package(RTAI REQUIRED)
 set(LIBRARIES ${LIBRARIES} ${RTAI_LIBRARIES})
 set(INCLUDE_DIRS ${INCLUDE_DIRS} ${RTAI_INCLUDE_DIR})
+add_definitions(-D__RTAI__)
 
 ###############################################################################
 # Find M3
@@ -80,10 +80,19 @@ set(INCLUDE_DIRS ${INCLUDE_DIRS} ${M3RT_INCLUDE_DIR})
 ###############################################################################
 # Find google protobuff
 find_package(Protobuf REQUIRED)
-set(PROTOBUF_IMPORT_DIRS ${INCLUDE_DIRS})
-set(LIBRARIES ${LIBRARIES} ${PROTOBUF_LIBRARIES})
-set(INCLUDE_DIRS ${INCLUDE_DIRS} ${PROTOBUF_INCLUDE_DIR})
+set(PROTOBUF_IMPORT_DIRS ${INCLUDE_DIRS} ${M3RT_INCLUDE_DIR} ${M3_INCLUDE_DIR})
+file(GLOB ProtoFiles "${PROJECT_PROTO_DIR}/*.proto")
 
+PROTOBUF_GENERATE_CPP(ProtoSources ProtoHeaders ${CMAKE_CURRENT_BINARY_DIR} ${ProtoFiles})
+set_source_files_properties(${ProtoSources} ${ProtoHeaders} PROPERTIES
+                            GENERATED TRUE)
+add_custom_target(${PROJECT_NAME}_cpp_protobuf_output ALL DEPENDS ${ProtoSources}) # Force the re-generation c++
+
+PROTOBUF_GENERATE_PYTHON(PySources ${CMAKE_CURRENT_BINARY_DIR} ${ProtoFiles}) 
+add_custom_target(${PROJECT_NAME}_python_protobuf_output ALL DEPENDS ${PySources}) # Force the re-generation python
+
+set(LIBRARIES ${LIBRARIES} ${PROTOBUF_LIBRARIES} ${ProtoHeaders})
+set(INCLUDE_DIRS ${INCLUDE_DIRS} ${PROTOBUF_INCLUDE_DIR})
 ###############################################################################
 # Find Eigen
 find_package(Eigen3 3.2 REQUIRED)
@@ -120,11 +129,6 @@ set(LIBRARIES ${LIBRARIES} ${orocos_kdl_LIBRARIES})
 set(LIBRARIES ${LIBRARIES} omni_kinematics pthread)
 
 ###############################################################################
-# Protobuff stuff
-add_subdirectory(src)
-set_source_files_properties(${ProtoSources} ${ProtoHeaders} PROPERTIES GENERATED TRUE)
-
-###############################################################################
 # Include directories
 include_directories(
     ${CMAKE_CURRENT_BINARY_DIR}
@@ -133,6 +137,10 @@ include_directories(
     ${PROJECT_ROOT}/omni_kinematics/include
     ${INCLUDE_DIRS}
     ${ProtoHeaders}
+    ${M3_SRC} # HACK : Include this 4 directories for the generated protobufs headers from m3core
+    ${M3RT_SRC}
+    ${CMAKE_BINARY_DIR}/m3core/src
+    ${CMAKE_BINARY_DIR}/m3core/src/m3rt/base 
 )
 
 set(ALL_SRCS 
@@ -146,14 +154,15 @@ set(ALL_HDRS
 )
 
 list(APPEND ALL_SRCS 
-${ProtoSources})
-
-list(APPEND ALL_HDRS
-${ProtoHeaders}
-${ProtoFiles}
+    ${ProtoSources}
 )
 
+list(APPEND ALL_HDRS
+    ${ProtoHeaders}
+    ${ProtoFiles}
+)
 
+###############################################################################
 ## Building
 set(CMAKE_CXX_FLAGS "-Wall -std=c++0x")
 set(CMAKE_CXX_FLAGS_DEBUG "-O0 -ggdb")
@@ -166,11 +175,13 @@ add_subdirectory(omni_kinematics)
 add_subdirectory(python)
 
 add_library(${PROJECT_NAME} SHARED ${ALL_SRCS})
+
 add_dependencies(${PROJECT_NAME} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(${PROJECT_NAME} ${LIBRARIES} ${ProtoHeaders})
+
+target_link_libraries(${PROJECT_NAME} ${LIBRARIES})
+
 set_target_properties(${PROJECT_NAME} PROPERTIES 
                       INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/lib)
-#set_target_properties(${LIBNAME} PROPERTIES COMPILE_FLAGS "-I${CMAKE_BINARY_DIR}/src")
 
 ## Installing
 install(TARGETS ${PROJECT_NAME} DESTINATION lib)

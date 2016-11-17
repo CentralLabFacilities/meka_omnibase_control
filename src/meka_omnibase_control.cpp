@@ -1,7 +1,7 @@
 #include <meka_omnibase_control/meka_omnibase_control.hpp>
 #include <limits>
 
-using namespace meka_omnibase_control;
+using namespace m3;
 
 bool MekaOmnibaseControl::ReadConfig(const char* filename)
 {
