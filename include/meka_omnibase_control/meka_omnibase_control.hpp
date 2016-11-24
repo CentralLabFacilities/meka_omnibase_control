@@ -7,7 +7,7 @@
 #include <m3/hardware/pwr.h>
 #include <omni_kinematics/robot.hpp>
 #include <omni_kinematics/control.hpp>
-#include <meka_omnibase_control/caster_control.hpp>
+#include "caster_control.hpp"
 #include "meka_omnibase_control.pb.h"
 
 namespace m3_obase_ctrl

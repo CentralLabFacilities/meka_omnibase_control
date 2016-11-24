@@ -65,7 +65,7 @@ class OmniBridge:
 
         # Make the transform available in the 'future' to avoid extrapolation errors
         # Same thing AMCL and robot_state_publisher for static transform do.
-        odom_time = now + rospy.Duration(0.50)
+        odom_time = now #+ rospy.Duration(0.50)
 
         #rospy.logdebug("Time elapsed since last command: " + str(elapsed.to_sec()))
         if (elapsed > self.timeout):

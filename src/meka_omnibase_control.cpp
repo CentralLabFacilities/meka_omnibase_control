@@ -1,7 +1,7 @@
 #include <meka_omnibase_control/meka_omnibase_control.hpp>
 #include <limits>
 
-using namespace m3;
+using namespace m3_obase_ctrl;
 
 bool MekaOmnibaseControl::ReadConfig(const char* filename)
 {
@@ -422,7 +422,8 @@ void MekaOmnibaseControl::StepCommand()
         }
     }
 
-    last_ctrl_mode_ = command_.ctrl_mode();
+	last_ctrl_mode_ = command_.ctrl_mode();	
+
     tick();
 }
 
@@ -451,4 +452,3 @@ int MekaOmnibaseControl::elapsed(int begin) const
         
     }
 }
-

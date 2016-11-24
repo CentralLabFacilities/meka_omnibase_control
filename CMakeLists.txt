@@ -91,7 +91,7 @@ add_custom_target(${PROJECT_NAME}_cpp_protobuf_output ALL DEPENDS ${ProtoSources
 PROTOBUF_GENERATE_PYTHON(PySources ${CMAKE_CURRENT_BINARY_DIR} ${ProtoFiles}) 
 add_custom_target(${PROJECT_NAME}_python_protobuf_output ALL DEPENDS ${PySources}) # Force the re-generation python
 
-set(LIBRARIES ${LIBRARIES} ${PROTOBUF_LIBRARIES} ${ProtoHeaders})
+set(LIBRARIES ${LIBRARIES} ${PROTOBUF_LIBRARIES})
 set(INCLUDE_DIRS ${INCLUDE_DIRS} ${PROTOBUF_INCLUDE_DIR})
 ###############################################################################
 # Find Eigen
