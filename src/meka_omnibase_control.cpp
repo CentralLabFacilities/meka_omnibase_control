@@ -98,11 +98,9 @@ bool MekaOmnibaseControl::ReadConfig(const char* filename)
         return false;
     }
 
-        robot_.calcConstraints();
+    robot_.calcConstraints();
 
-        return true;
-
-
+    return true;
 }
 
 bool MekaOmnibaseControl::LinkDependentComponents()
@@ -150,7 +148,6 @@ void MekaOmnibaseControl::Startup()
    }
 
    // NOTE: Cartesian limits currently ignored.
-   
    command_.set_ctrl_mode(MEKA_OMNIBASE_CONTROL_OFF);
    last_ctrl_mode_ = MEKA_OMNIBASE_CONTROL_OFF;
 
@@ -158,14 +155,19 @@ void MekaOmnibaseControl::Startup()
    robot_.resetPose();
    
    cycle_ = 0;
+   
+   SetStateDisabled();
 }
 
 void MekaOmnibaseControl::Shutdown()
 {
 }
 
-void MekaOmnibaseControl::StepStatus()
-{
+void MekaOmnibaseControl::StepStatus() {
+    if (IsStateError() || IsStateDisabled()) {
+        return;
+    }
+    
     //using VectorType = omni_kinematics::Robot::VectorType;
     typedef omni_kinematics::Robot::VectorType VectorType;
     static VectorType beta(NUM_CASTERS);
@@ -238,31 +240,10 @@ void MekaOmnibaseControl::StepStatus()
     
 }
 
-bool MekaOmnibaseControl::casterStable(int i)
-{
-    if (!casters_[i].stable()) {
-        unstable_start_[i] = now();
-        return false;
-    } else if (elapsed(unstable_start_[i]) < 1000) {
-        return false;
-    } else {
-        unstable_start_[i] = -1;
-        return true;
-    }
-}
-
-bool MekaOmnibaseControl::testZeroVel()
-{
-    static const double EPS = 1e-6;
-
-    const double& xd = command_.xd_des(0);
-    const double& yd = command_.xd_des(1);
-    const double& td = command_.xd_des(2);
-    return ((xd*xd + yd*yd + td*td) < EPS);
-}
-
-void MekaOmnibaseControl::StepCommand()
-{
+void MekaOmnibaseControl::StepCommand() {
+    if ( IsStateSafeOp() || IsStateError() || IsStateDisabled() )
+        return;
+    
     //using VectorType = omni_kinematics::Robot::VectorType;
     //using Twist      = omni_kinematics::Twist;
     typedef omni_kinematics::Robot::VectorType VectorType;
@@ -425,6 +406,28 @@ void MekaOmnibaseControl::StepCommand()
 	last_ctrl_mode_ = command_.ctrl_mode();	
 
     tick();
+}
+
+bool MekaOmnibaseControl::casterStable(int i) {
+    if (!casters_[i].stable()) {
+        unstable_start_[i] = now();
+        return false;
+    } else if (elapsed(unstable_start_[i]) < 1000) {
+        return false;
+    } else {
+        unstable_start_[i] = -1;
+        return true;
+    }
+}
+
+bool MekaOmnibaseControl::testZeroVel()
+{
+    static const double EPS = 1e-6;
+
+    const double& xd = command_.xd_des(0);
+    const double& yd = command_.xd_des(1);
+    const double& td = command_.xd_des(2);
+    return ((xd*xd + yd*yd + td*td) < EPS);
 }
 
 int MekaOmnibaseControl::now() const

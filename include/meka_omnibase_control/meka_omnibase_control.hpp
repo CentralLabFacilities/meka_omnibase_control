@@ -5,6 +5,7 @@
 #include <m3rt/base/component.h>
 #include <m3/chains/joint_array.h>
 #include <m3/hardware/pwr.h>
+#include <m3/vehicles/omnibase.h>
 #include <omni_kinematics/robot.hpp>
 #include <omni_kinematics/control.hpp>
 #include "caster_control.hpp"
@@ -50,7 +51,7 @@ namespace m3_obase_ctrl
         int                                     cycle_;
         int                                     unstable_start_[NUM_CASTERS];
         int                                     zero_vel_start_;
-
+        
     public:
         MekaOmnibaseControl():
             m3rt::M3Component(ROBOT_PRIORITY),
@@ -69,7 +70,7 @@ namespace m3_obase_ctrl
         {
             return status_.mutable_base();
         }
-
+        
     private:
         enum {DEFAULT, ISS};
 
