@@ -27,12 +27,6 @@ set(PROJECT_PYTHON_DIR ${PROJECT_ROOT}/python)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY  ${PROJECT_RUNTIME_OUTPUT_DIRECTORY})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_LIBRARY_OUTPUT_DIRECTORY})
 
-set(RTAI on)
-
-#if(BUILD_LOCAL)
-#    set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
-#endif(BUILD_LOCAL)
-
 ###############################################################################
 # Find catkin
 find_package(catkin REQUIRED COMPONENTS
@@ -59,13 +53,6 @@ set(LIBRARIES ${LIBRARIES} ${catkin_LIBRARIES})
 set(INCLUDE_DIRS ${INCLUDE_DIRS} ${catkin_INCLUDE_DIRS})
 
 ###############################################################################
-# Find RTAI
-find_package(RTAI REQUIRED)
-set(LIBRARIES ${LIBRARIES} ${RTAI_LIBRARIES})
-set(INCLUDE_DIRS ${INCLUDE_DIRS} ${RTAI_INCLUDE_DIR})
-add_definitions(-D__RTAI__)
-
-###############################################################################
 # Find M3
 find_package(M3 COMPONENTS HARDWARE CHAINS TOOLBOX VEHICLES REQUIRED)
 set(LIBRARIES ${LIBRARIES} ${M3_LIBRARIES})
@@ -88,15 +75,14 @@ set_source_files_properties(${ProtoSources} ${ProtoHeaders} PROPERTIES
                             GENERATED TRUE)
 add_custom_target(${PROJECT_NAME}_cpp_protobuf_output ALL DEPENDS ${ProtoSources}) # Force the re-generation c++
 
-PROTOBUF_GENERATE_PYTHON(PySources ${CMAKE_CURRENT_BINARY_DIR} ${ProtoFiles}) 
+PROTOBUF_GENERATE_PYTHON(PySources ${PROJECT_PYTHON_DIR} ${ProtoFiles}) 
 add_custom_target(${PROJECT_NAME}_python_protobuf_output ALL DEPENDS ${PySources}) # Force the re-generation python
 
 set(LIBRARIES ${LIBRARIES} ${PROTOBUF_LIBRARIES})
 set(INCLUDE_DIRS ${INCLUDE_DIRS} ${PROTOBUF_INCLUDE_DIR})
 ###############################################################################
 # Find Eigen
-find_package(Eigen3 3.2 REQUIRED)
-set(LIBRARIES ${LIBRARIES} ${EIGEN3_LIBRARIES})
+find_package(Eigen3 REQUIRED)
 set(INCLUDE_DIRS ${INCLUDE_DIRS} ${EIGEN3_INCLUDE_DIR})
 
 ###############################################################################
@@ -117,12 +103,6 @@ set_property(
    )
 endif(NOT ${YAMLCPP_VERSION} VERSION_LESS "0.5")
 link_directories(${YAMLCPP_LIBRARY_DIRS})
-
-###############################################################################
-# Find OROCOS KDL
-find_package(orocos_kdl REQUIRED)
-set(INCLUDE_DIRS ${INCLUDE_DIRS} ${orocos_kdl_INCLUDE_DIRS})
-set(LIBRARIES ${LIBRARIES} ${orocos_kdl_LIBRARIES})
 
 ###############################################################################
 # other
